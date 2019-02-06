@@ -1,22 +1,18 @@
 {
-  "name": "semappsv2.0",
+  "name": "semappsv2-back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
+  "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/assemblee-virtuelle/SemappsV2.git"
   },
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/assemblee-virtuelle/SemappsV2/issues"
-  },
-  "homepage": "https://github.com/assemblee-virtuelle/SemappsV2#readme"
+  "dependencies": {
+    "express": "^4.16.4",
+    "express-openapi": "^4.3.0",
+    "rdf-ext": "^1.2.1",
+    "swagger-ui-express": "^4.0.2"
+  }
 }

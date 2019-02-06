@@ -4,18 +4,19 @@ module.exports = function(userService) {
   };
   
   function GET(req, res, next) {
+    //TODO: Change this and add userByFilter
     res.status(200).json(userService.userByName(req.query.username));
   }
   
   // NOTE: We could also use a YAML string here.
   GET.apiDoc = {
-    summary: 'Returns a Semapps User.',
+    summary: 'Returns a Semapps User List.',
     operationId: 'userByName',
     parameters: [
       {
         in: 'query',
         name: 'username',
-        required: true,
+        required: false,
         type: 'string'
       }
     ],

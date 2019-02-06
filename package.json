@@ -10,9 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.3",
     "express": "^4.16.4",
     "express-openapi": "^4.3.0",
     "rdf-ext": "^1.2.1",
+    "rdf-store-sparql": "^2.0.0",
     "swagger-ui-express": "^4.0.2"
   }
 }

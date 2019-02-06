@@ -9,7 +9,7 @@ module.exports = function(userService) {
     
     // NOTE: We could also use a YAML string here.
     POST.apiDoc = {
-      summary: 'edit a Semapps User.',
+      summary: 'Edit a Semapps User.',
       operationId: 'editUser',
       parameters: [
         {

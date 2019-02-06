@@ -4,7 +4,13 @@ module.exports = function(userService) {
     };
     
     function POST(req, res, next) {
-      res.status(200).json(userService.createUser(req.query));
+      let ret = userService.createUser(req.query);
+
+      if (ret.error && ret.error){
+        res.status(ret.status).json(ret);
+      } else {
+        res.status(200).json(ret);
+      }
     }
     
     // NOTE: We could also use a YAML string here.

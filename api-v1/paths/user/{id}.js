@@ -7,7 +7,7 @@ module.exports = function(userService) {
         in: 'path',
         name: 'id',
         required: true,
-        type: 'number'
+        type: 'string'
       }
     ],
   };

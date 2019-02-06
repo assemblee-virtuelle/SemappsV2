@@ -1,0 +1,6 @@
+{
+    "uri":"http://localhost",
+    "port": "3030",
+    "sparqlEndpoint": "/SemappsTests/sparql",
+    "updateEndpoint": "/SemappsTests/update"
+}

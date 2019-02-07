@@ -11,12 +11,13 @@ module.exports = class {
         }
 
         let options = {};
+        let port = args.port ? ':' + args.port : "";
         if (args.updateEndpoint){
-            let port = args.port ? ':' + args.port : "";
             let _updateUrl = args.uri + port + args.updateEndpoint;
             options = {updateUrl:_updateUrl};
         }
+        let sparqlUrl = args.uri + port + args.sparqlEndpoint;
         console.log("Client created")
-        this.client = new rdfStoreSparql(args.sparqlEndpoint, options);
+        this.client = new rdfStoreSparql(sparqlUrl, options);
     }
 }

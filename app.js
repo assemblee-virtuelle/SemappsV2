@@ -30,7 +30,8 @@ initialize({
   dependencies: {
     userService: _userService,
   },
-  paths: './api-v1/paths' //Use filesystem as paths
+  paths: './api-v1/paths', //Use filesystem as paths
+  promiseMode: true,
 });
 
 //Listen to port 3000

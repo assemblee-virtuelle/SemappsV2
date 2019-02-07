@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
-const rdfExt = require('rdf-ext');
+const rdf = require('rdf-ext');
+const Serializer = require('@rdfjs/serializer-jsonld');
+const Readable = require('readable-stream');
 
 const saltRounds = 10;
 
@@ -23,15 +25,39 @@ module.exports = class {
     this.client = sparqlClient.client;
   }
 
-  userByName(name){
+  async userByFilter(name){
+    let graph = rdf.namedNode('http://localhost:3030/SemappsTests/data/Users');
 
-    const stream = this.client.construct("DESCRIBE <http://localhost:3030/SemappsTests/data/Users>");
+    let test = rdf.literal('SamdsysdsdV');
 
-    let test = rdfExt.dataset().import(stream).then((res) => {
-      console.log('res :', res)
+    const stream = this.client.match(null, null, test, graph);
+
+    let userPromise = new Promise((resolve, reject) => {
+      rdf.dataset().import(stream)
+      .then(dataset => resolve(dataset));
     })
-    .catch(err => console.log('err :', err));
-    return test;
+    let users = await userPromise.then();
+
+    const serializer = new Serializer();
+
+    let readable = new Readable();
+    readable._readableState.objectMode = true
+    readable._read = () => {
+      users._quads.forEach((quad) => {
+        readable.push(quad)
+      })
+      readable.push(null)
+    }
+
+    let output = serializer.import(readable);
+    return new Promise((resolve, reject) => {
+      output.on('data', jsonld => {
+        console.log('jsonld :')
+        resolve(jsonld);
+      })
+    })
+    // return new Promise(resolve => resolve())
+    // return test;
   }
   
   userById(id){

@@ -13,3 +13,5 @@ run `npm start` to start the local server
 
 By default, the API UI will be at http://localhost:3000/api-docs
 The JSON documentation of the api is at http://localhost:3000/v1/api-docs
+
+The Jena configuration file is located at /config/tripleStore.json

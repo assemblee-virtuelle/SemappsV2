@@ -1,5 +1,6 @@
 const ns = require('@rdfjs/namespace');
 
+//Different namespaces the app uses
 module.exports = {
     pair: ns('http://virtual-assembly.org/pair#'),
     rdfs: ns('http://www.w3.org/2000/01/rdf-schema#'),

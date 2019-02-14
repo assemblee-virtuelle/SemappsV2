@@ -1,6 +1,8 @@
 {
-    "uri":"http://localhost",
+    "uri":"http://data.virtual-assembly.org",
     "port": "3030",
-    "sparqlEndpoint": "/SemappsTests/sparql",
-    "updateEndpoint": "/SemappsTests/update"
+    "dataset": "SemappsTest",
+    "sparqlEndpoint": "/sparql",
+    "updateEndpoint": "/update",
+    "graphEndpoint": "/data"
 }

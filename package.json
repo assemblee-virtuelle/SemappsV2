@@ -11,14 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "@rdfjs/data-model": "^1.1.1",
+    "@rdfjs/namespace": "^1.0.0",
     "@rdfjs/serializer-jsonld": "^1.2.0",
     "bcrypt": "^3.0.3",
     "express": "^4.16.4",
     "express-openapi": "^4.3.0",
+    "node-fetch": "^2.3.0",
     "rdf-ext": "^1.2.1",
-    "rdf-serializer-jsonld-ext": "^1.4.0",
     "rdf-store-sparql": "^2.0.0",
-    "readable-stream": "^3.1.1",
     "swagger-ui-express": "^4.0.2"
   }
 }

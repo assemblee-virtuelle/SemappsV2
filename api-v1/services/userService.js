@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const rdf = require('rdf-ext');
 const Serializer = require('@rdfjs/serializer-jsonld');
-const Readable = require('readable-stream');
+const ns = require('../utils/namespaces.js');
 
 const saltRounds = 10;
 
@@ -20,44 +20,31 @@ let users = {
 };
 
 module.exports = class {
-  constructor(sparqlClient){
+  constructor(sparqlStore){
     //Initialize sparql client
-    this.client = sparqlClient.client;
+    this.client = sparqlStore;
+    this.store = sparqlStore.store;
   }
 
-  async userByFilter(name){
+  async userByFilter(filters){
+    const serializer = new Serializer();
     let graph = rdf.namedNode('http://localhost:3030/SemappsTests/data/Users');
-
     let test = rdf.literal('SamdsysdsdV');
 
+    //Apply filters to match
     const stream = this.client.match(null, null, test, graph);
+    
+    let users = rdf.dataset();
 
-    let userPromise = new Promise((resolve, reject) => {
-      rdf.dataset().import(stream)
-      .then(dataset => resolve(dataset));
-    })
-    let users = await userPromise.then();
-
-    const serializer = new Serializer();
-
-    let readable = new Readable();
-    readable._readableState.objectMode = true
-    readable._read = () => {
-      users._quads.forEach((quad) => {
-        readable.push(quad)
-      })
-      readable.push(null)
-    }
-
-    let output = serializer.import(readable);
     return new Promise((resolve, reject) => {
-      output.on('data', jsonld => {
-        console.log('jsonld :')
-        resolve(jsonld);
-      })
+      users.import(stream).then(dataset => {
+        let output = serializer.import(dataset.toStream());
+        output.on('data', jsonld => {
+          console.log('jsonld :')
+          resolve(jsonld);
+        })
+      });
     })
-    // return new Promise(resolve => resolve())
-    // return test;
   }
   
   userById(id){
@@ -65,22 +52,22 @@ module.exports = class {
     return users[id] ? users[id] : "";
   }
   
-  createUser(userInfo){
-    console.log("Create new User");
+  async createUser(userInfo){
+    const userGraphName = "User";
+    const userSecurityName = "UserSecurity";
+    const userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userGraphName);
+    const userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
+    
+    console.log('userGraph :', userInfoGraph)
+    console.log('userSecurity :', userSecurityGraph)
 
     //VERIFY USER INFO
     if (userInfo.username && userInfo.email && userInfo.password){
+      const email = userInfo.email;
+      const username = userInfo.username;
+      let exists = false; //TODO: Check if email already exist
+      let response = "";
 
-      //Check if email already exist
-      let exists = false;
-      for (const username in users) {
-        if (users.hasOwnProperty(username)) {
-          const user = users[username];
-          if (userInfo.email === user.email){
-            exists = true;
-          }
-        }
-      }
       //User found
       if (!exists){
         let password = userInfo.password;
@@ -92,14 +79,31 @@ module.exports = class {
         let hash = bcrypt.hashSync(password, salt);
 
         //Create semantic user
-        users[id] = {
-          name: userInfo.username,
-          email: userInfo.email,
-          password: hash,
-        }
+        let userSubject = rdf.namedNode(userSecurityGraph.value + "#user_" + id);
+        
+        let specificAccess = rdf.blankNode();
+        let generalAccess; //TODO: create general access roles e.g ADMIN, MODERATOR, etc
+        
 
-        console.log("User created");
-        return users;
+        let user = [
+          rdf.quad(userSubject, ns.rdf('Type'), ns.sioc('UserAccount')),
+          rdf.quad(userSubject, ns.sioc('id'), rdf.literal(id)),
+          rdf.quad(userSubject, ns.foaf('accountName'), rdf.literal(username)),
+          rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email)),
+          rdf.quad(userSubject, ns.account('password'), rdf.literal(hash)),
+          rdf.quad(userSubject, ns.sioc('has_function'), specificAccess),
+          rdf.quad(specificAccess, ns.rdf('Type'), ns.sioc('Role')),
+          rdf.quad(specificAccess, ns.access('has_permission'), rdf.namedNode("http://example.org/data/admin"))
+        ];
+        let userGraph = rdf.graph(user);
+        let dataset = rdf.dataset(userGraph, userSecurityGraph);
+        const stream = this.store.import(dataset.toStream());
+        return new Promise((resolve, reject) => {
+          rdf.waitFor(stream).then((e) => {
+            resolve(response);
+          })
+        })
+        
       } else {
         //Email already in use
         console.log("Email already exist");
@@ -119,4 +123,5 @@ module.exports = class {
     console.log("Delete user", userInfo);
     //DELETE USER CODE
   }
+
 }

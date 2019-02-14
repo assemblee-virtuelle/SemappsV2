@@ -20,6 +20,7 @@ module.exports = function(userService) {
   GET.apiDoc = {
     summary: 'Returns a Semapps User.',
     operationId: 'userById',
+    tags:["user"],
     responses: {
       200: {
         description: 'User matching id'

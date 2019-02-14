@@ -3,7 +3,7 @@ const {initialize} = require('express-openapi');
 const v1UserService = require('./api-v1/services/userService');
 const v1ApiDoc = require('./api-v1/api-doc');
 const swaggerUi = require('swagger-ui-express');
-const tpsClient = require('./api-v1/services/tripleStoreClient');
+const SparqlStore = require('./api-v1/services/tripleStoreClient');
 const fs = require('fs');
 
 const app = express();
@@ -16,10 +16,10 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 
 //Triple Store options
 const tpsOptions = JSON.parse(fs.readFileSync(__dirname + '/config/tripleStore.json'));
-const sparqlClient = new tpsClient(tpsOptions);
+const sparqlStore = new SparqlStore(tpsOptions);
 
 //Initialize user service with sparql client injection
-const _userService = new v1UserService(sparqlClient);
+const _userService = new v1UserService(sparqlStore);
 
 //Initialize OPEN API (swagger)
 initialize({

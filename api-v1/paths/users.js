@@ -16,6 +16,7 @@ module.exports = function(userService) {
   GET.apiDoc = {
     summary: 'Returns a Semapps User List.',
     operationId: 'userByFilter',
+    tags:["user"],
     parameters: [
       {
         in: 'query',

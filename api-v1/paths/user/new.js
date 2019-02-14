@@ -3,13 +3,13 @@ module.exports = function(userService) {
       POST
     };
     
-    function POST(req, res, next) {
-      let ret = userService.createUser(req.query);
+    async function POST(req, res, next) {
+      let ret = await userService.createUser(req.query);
 
-      if (ret.error && ret.error){
-        res.status(ret.status).json(ret);
+      if (ret.error){
+        res.sendStatus(500);
       } else {
-        res.status(200).json(ret);
+        res.sendStatus(201);
       }
     }
     
@@ -17,6 +17,7 @@ module.exports = function(userService) {
     POST.apiDoc = {
       summary: 'Creates a Semapps User.',
       operationId: 'createUser',
+      tags:["user"],
       parameters: [
         {
             in: 'query',

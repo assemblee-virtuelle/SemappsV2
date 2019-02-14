@@ -11,6 +11,7 @@ module.exports = function(userService) {
     POST.apiDoc = {
       summary: 'Edit a Semapps User.',
       operationId: 'editUser',
+      tags:["user"],
       parameters: [
         {
             in: 'query',

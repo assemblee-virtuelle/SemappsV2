@@ -11,6 +11,7 @@ module.exports = function(userService) {
     POST.apiDoc = {
         summary: 'Deletes a Semapps User.',
         operationId: 'deleteUser',
+        tags:["user"],
         parameters: [
         {
             in: 'query',

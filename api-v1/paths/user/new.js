@@ -6,10 +6,10 @@ module.exports = function(userService) {
     async function POST(req, res, next) {
       let ret = await userService.createUser(req.query);
 
-      if (ret.error){
-        res.sendStatus(500);
+      if (ret && ret.error){
+        res.status(ret.error_status).send(ret.error_description);
       } else {
-        res.sendStatus(201);
+        res.status(201).json(ret);
       }
     }
     
@@ -41,6 +41,12 @@ module.exports = function(userService) {
       responses: {
         200: {
           description: 'New User Created'
+        },
+        400: {
+          description: 'Invalid info'
+        },
+        406: {
+          description: 'User already exist'
         },
         default: {
           description: 'An error occurred',

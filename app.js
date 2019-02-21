@@ -19,6 +19,11 @@ const tpsOptions = JSON.parse(fs.readFileSync(__dirname + '/config/tripleStore.j
 const sparqlStore = new SparqlStore(tpsOptions);
 
 //Initialize user service with sparql client injection
+
+//TODO: Extract options from json configuration
+const userServiceOptions = {
+  roles:['Admin, Moderator'],
+}
 const _userService = new v1UserService(sparqlStore);
 
 //Initialize OPEN API (swagger)

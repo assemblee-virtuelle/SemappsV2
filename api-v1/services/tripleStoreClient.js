@@ -17,6 +17,8 @@ module.exports = class {
         let uri = args.uri + port;
         let uriStart = uri + '/' + args.dataset;
 
+        this.roles = args.roles;
+
         if (args.updateEndpoint){
             let _updateUrl = uriStart + args.updateEndpoint;
             this.updateEndpoint = _updateUrl;
@@ -29,14 +31,20 @@ module.exports = class {
 
         this.store = new SparqlStore(sparqlUrl, options);
 
-        fetch(uri + '/$/ping').then(res => {
-            console.log('res.status :', res.status)
+        
+
+        fetch(uri + '/$/server').then(res => {
+            //TODO: check WWW authenticate
             if(res.status == 401){
                 console.log("Authentification needed");
                 //Send auth
             }
-            console.log("Triple store found and set")
-        }).catch(err => console.log('err :', err))
+
+            return res;
+        })
+        .catch(err => {
+            console.log('err :', err);
+        });
     }
 
     quadToStream(graph){
@@ -49,6 +57,14 @@ module.exports = class {
           readable.push(null)
         }
         return readable;
+    }
+
+    generateInitialGraphs(){
+        this.generateRoleGraph();
+    }
+
+    generateRoleGraph(){
+    
     }
 
 }

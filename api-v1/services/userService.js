@@ -6,6 +6,15 @@ const ns = require('../utils/namespaces.js');
 
 const saltRounds = 10;
 
+//TODO: do roles
+// const rolesGraphName = "Roles";
+// const rolesGraph = rdf.namedNode(this.client.graphEndpoint + '/' + rolesGraphName);
+// let adminRole = rdf.graph( [
+//   rdf.quad(rolesGraph),
+// ]);
+// console.log('rolesGrpah :', rolesGrpah);
+
+
 let users = {
   34234123: {
     name: 'Toto',
@@ -24,6 +33,17 @@ module.exports = class {
     //Initialize sparql client
     this.client = sparqlStore;
     this.store = sparqlStore.store;
+    
+    let userInfoName = "Users";
+    let userSecurityName = "UserSecurity";
+
+    this.userSuffix = "#user_";
+
+    this.userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userInfoName);
+    this.userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
+    
+    console.log('userGraph :', this.userInfoGraph.value)
+    console.log('userSecurity :', this.userSecurityGraph.value)
   }
 
   async userByFilter(filters){
@@ -53,37 +73,45 @@ module.exports = class {
   }
   
   async createUser(userInfo){
-    const userGraphName = "User";
-    const userSecurityName = "UserSecurity";
-    const userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userGraphName);
-    const userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
-    
-    console.log('userGraph :', userInfoGraph)
-    console.log('userSecurity :', userSecurityGraph)
+    //TODO: mettre les infos dans un fichier de config
+
+
+    //IMPORTANT NOTE: semapps design transition on webc load
 
     //VERIFY USER INFO
     if (userInfo.username && userInfo.email && userInfo.password){
       const email = userInfo.email;
       const username = userInfo.username;
-      let exists = false; //TODO: Check if email already exist
+      let canCreate = true; //TODO: Check if email already exist
       let response = "";
 
-      //User found
-      if (!exists){
+      //Check if email is taken
+      let stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), rdf.namedNode(this.userSecurityGraph));
+
+      let matches = await rdf.dataset().import(stream);
+      if (matches.length != 0){
+        //Send response already exist
+        return {error:"Conflict", error_status:409, error_description:"Email Already Exists"};
+      } else {
         let password = userInfo.password;
+
+        //Generate random ID
         let current_date = (new Date()).valueOf().toString();
         let id = crypto.randomBytes(5).toString('hex') + current_date;
+        let suffix = this.userSuffix + id;
 
-        console.log('id :', id);
+        //Hash Password
         let salt = bcrypt.genSaltSync(saltRounds);
         let hash = bcrypt.hashSync(password, salt);
 
-        //Create semantic user
-        let userSubject = rdf.namedNode(userSecurityGraph.value + "#user_" + id);
+        //Convert uri in rdf-ext namedNode
+        let userSubject = rdf.namedNode(this.userSecurityGraph.value + suffix);
         
-        let specificAccess = rdf.blankNode();
+        //Create basic roles blank nodes
+        let bnRead = rdf.blankNode("read");
+        let bnWrite = rdf.blankNode("write");
+
         let generalAccess; //TODO: create general access roles e.g ADMIN, MODERATOR, etc
-        
 
         let user = [
           rdf.quad(userSubject, ns.rdf('Type'), ns.sioc('UserAccount')),
@@ -91,24 +119,31 @@ module.exports = class {
           rdf.quad(userSubject, ns.foaf('accountName'), rdf.literal(username)),
           rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email)),
           rdf.quad(userSubject, ns.account('password'), rdf.literal(hash)),
-          rdf.quad(userSubject, ns.sioc('has_function'), specificAccess),
-          rdf.quad(specificAccess, ns.rdf('Type'), ns.sioc('Role')),
-          rdf.quad(specificAccess, ns.access('has_permission'), rdf.namedNode("http://example.org/data/admin"))
+          rdf.quad(userSubject, ns.sioc('has_function'), bnRead),
+          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.userInfoGraph.value + suffix)),
+          rdf.quad(bnRead, ns.rdf('Type'), ns.sioc('Role')), //TODO: Ajouter role admin
+          rdf.quad(bnRead, ns.access('has_permission'), ns.acl('Read')),
+          rdf.quad(bnRead, ns.sioc('has_scope'), rdf.blankNode()),
+          rdf.quad(userSubject, ns.sioc('has_function'), bnWrite),
+          rdf.quad(bnWrite, ns.rdf('Type'), ns.sioc('Role')),
+          rdf.quad(bnWrite, ns.access('has_permission'), ns.acl('Write')),
+          rdf.quad(bnWrite, ns.sioc('has_scope'), rdf.blankNode()),
         ];
         let userGraph = rdf.graph(user);
-        let dataset = rdf.dataset(userGraph, userSecurityGraph);
+        let dataset = rdf.dataset(userGraph, this.userSecurityGraph);
         const stream = this.store.import(dataset.toStream());
         return new Promise((resolve, reject) => {
           rdf.waitFor(stream).then((e) => {
+            response = {
+              user: userSubject.value,
+              id:id
+            }
             resolve(response);
           })
         })
-        
-      } else {
-        //Email already in use
-        console.log("Email already exist");
-        return {error:"email", status:409, description:"Email already exist"};
       }
+    } else {
+      return {error:"Bad request", error_type:400, error_description:"Incorrect info"}
     }
 
     //CREATE USER CODE
@@ -120,7 +155,41 @@ module.exports = class {
   }
   
   deleteUser(userInfo){
-    console.log("Delete user", userInfo);
+    //471c430a3f1550756600333
+    //9b3de265fb1550756770593
+
+    let email = userInfo.email;
+    let id = userInfo.id;
+    id = "9b3de265fb1550756770593";
+    let password = userInfo.password;
+
+    let salt = bcrypt.genSaltSync(saltRounds);
+    let hash = bcrypt.hashSync(password, salt);
+
+
+
+    let query = `
+    SELECT ?person ?pass WHERE {
+      GRAPH <${this.userSecurityGraph}> {
+        ?person <${ns.sioc('email').value}> "${rdf.literal(email)}".
+        ?person <${ns.sioc('id').value}> "${rdf.literal(id)}".
+        ?person <http://purl.org/NET/acc#password> ?pass.
+      }
+    }
+    `;
+    console.log('query :', query);
+    //Check if userInfo provided is correct
+    const test = this.store.construct(query, this.userSecurityGraph);
+    let stream = this.store.import(test);
+
+    // this.store.match(rdf.namedNode(this.userSecurityGraph.value + this.userSuffix + id), ns.sioc('email'), rdf.literal())
+    
+    //Check if user has permissions
+    return new Promise((resolve, reject) => {
+      rdf.waitFor(stream).then((e) => {
+        resolve(e);
+      })
+    })
     //DELETE USER CODE
   }
 

@@ -9,5 +9,6 @@ module.exports = {
     schema: ns('http://schema.org/'),
     sioc: ns('http://rdfs.org/sioc/ns#'),
     access: ns('http://rdfs.org/sioc/access#'),
-    account: ns('http://purl.org/NET/acc#')
+    account: ns('http://purl.org/NET/acc#'),
+    acl: ns('http://www.w3.org/ns/auth/acl#')
 }

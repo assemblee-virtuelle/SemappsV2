@@ -15,15 +15,21 @@ module.exports = function(userService) {
         parameters: [
         {
             in: 'query',
-            name: 'username',
-            required: false,
+            name: 'email',
+            required: true,
+            type: 'string'
+        },
+        {
+            in: 'query',
+            name: 'password',
+            required: true,
             type: 'string'
         },
         {
             in: 'query',
             name: 'id',
-            required: false,
-            type: 'integer'
+            required: true,
+            type: 'string'
         },
         ],
         responses: {

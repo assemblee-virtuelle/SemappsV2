@@ -43,7 +43,7 @@ module.exports = class {
             return res;
         })
         .catch(err => {
-            console.log('err :', err);
+            // console.log('err :', err); //Throw err
         });
     }
 

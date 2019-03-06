@@ -40,7 +40,7 @@ module.exports = class {
 
         })
         .catch(err => {
-            console.log('err :', err);
+            // console.log('err :', err); //Throw err
         });
     }
 

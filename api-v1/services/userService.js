@@ -4,35 +4,15 @@ const rdf = require('rdf-ext');
 const Serializer = require('@rdfjs/serializer-jsonld');
 const ns = require('../utils/namespaces.js');
 
+const serializer = new Serializer();
 const saltRounds = 10;
-
-//TODO: do roles
-// const rolesGraphName = "Roles";
-// const rolesGraph = rdf.namedNode(this.client.graphEndpoint + '/' + rolesGraphName);
-// let adminRole = rdf.graph( [
-//   rdf.quad(rolesGraph),
-// ]);
-// console.log('rolesGrpah :', rolesGrpah);
-
-
-let users = {
-  34234123: {
-    name: 'Toto',
-    email: 'toto@toto.fr',
-    password: '123',
-  },
-  54643543:{
-    name: 'Bob',
-    email: 'test@test.fr',
-    password: 'test',
-  }
-};
 
 module.exports = class {
   constructor(sparqlStore){
     //Initialize sparql client
     this.client = sparqlStore;
     this.store = sparqlStore.store;
+    this.httpClient = sparqlStore.store.client;
     
     let userInfoName = "Users";
     let userSecurityName = "UserSecurity";
@@ -42,34 +22,44 @@ module.exports = class {
     this.userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userInfoName);
     this.userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
     
-    console.log('userGraph :', this.userInfoGraph.value)
-    console.log('userSecurity :', this.userSecurityGraph.value)
+    // console.log('userGraph :', this.userInfoGraph.value)
+    // console.log('userSecurity :', this.userSecurityGraph.value)
   }
 
   async userByFilter(filters){
-    const serializer = new Serializer();
-    let graph = rdf.namedNode('http://localhost:3030/SemappsTests/data/Users');
-    let test = rdf.literal('SamdsysdsdV');
+
+    // let graph = filters.graph;
+    // let username = filters.username;
+    let username = filters;
 
     //Apply filters to match
-    const stream = this.client.match(null, null, test, graph);
+    const stream = this.store.match(null, null, rdf.literal(username));
     
-    let users = rdf.dataset();
+    let users = await rdf.dataset().import(stream);
 
     return new Promise((resolve, reject) => {
-      users.import(stream).then(dataset => {
+      let output = serializer.import(users.toStream());
+      output.on('data', jsonld => {
+        resolve(jsonld);
+      })
+    })
+  }
+  
+  async userById(id){
+    //FETCH USER INFO FROM ID
+    //Get user info from security graph or info graph directly ?
+    const stream = this.client.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
+
+    const user = rdf.dataset();
+    return new Promise((resolve, reject) => {
+      user.import(stream).then(dataset => {
         let output = serializer.import(dataset.toStream());
         output.on('data', jsonld => {
           console.log('jsonld :')
           resolve(jsonld);
         })
-      });
+      })
     })
-  }
-  
-  userById(id){
-    //FETCH USER INFO FROM ID
-    return users[id] ? users[id] : "";
   }
   
   async createUser(userInfo){
@@ -82,14 +72,13 @@ module.exports = class {
     if (userInfo.username && userInfo.email && userInfo.password){
       const email = userInfo.email;
       const username = userInfo.username;
-      let canCreate = true; //TODO: Check if email already exist
       let response = "";
 
       //Check if email is taken
-      let stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), rdf.namedNode(this.userSecurityGraph));
+      let stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
 
       let matches = await rdf.dataset().import(stream);
-      if (matches.length != 0){
+      if (matches && matches.size != 0){
         //Send response already exist
         return {error:"Conflict", error_status:409, error_description:"Email Already Exists"};
       } else {
@@ -123,7 +112,7 @@ module.exports = class {
           rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.userInfoGraph.value + suffix)),
           rdf.quad(bnRead, ns.rdf('Type'), ns.sioc('Role')), //TODO: Ajouter role admin
           rdf.quad(bnRead, ns.access('has_permission'), ns.acl('Read')),
-          rdf.quad(bnRead, ns.sioc('has_scope'), rdf.blankNode()),
+          rdf.quad(bnRead, ns.sioc('has_scope'), rdf.blankNode()), //TODO: Remplacer blankNode par namedNode ?
           rdf.quad(userSubject, ns.sioc('has_function'), bnWrite),
           rdf.quad(bnWrite, ns.rdf('Type'), ns.sioc('Role')),
           rdf.quad(bnWrite, ns.access('has_permission'), ns.acl('Write')),
@@ -146,51 +135,68 @@ module.exports = class {
       return {error:"Bad request", error_type:400, error_description:"Incorrect info"}
     }
 
-    //CREATE USER CODE
   }
   
-  editUser(userInfo){
+  async editUser(userInfo){
     console.log("Edit User", userInfo);
     //EDIT USER CODE
   }
-  
-  deleteUser(userInfo){
-    //471c430a3f1550756600333
-    //9b3de265fb1550756770593
+
+  async deleteUser(userInfo){
 
     let email = userInfo.email;
-    let id = userInfo.id;
-    id = "9b3de265fb1550756770593";
     let password = userInfo.password;
 
-    let salt = bcrypt.genSaltSync(saltRounds);
-    let hash = bcrypt.hashSync(password, salt);
+    // let query = `
+    // CONSTRUCT {
+    //   ?user ?p ?o
+    // } WHERE {
+    //   GRAPH <${this.userSecurityGraph}> {
+    //     ?user ?p ?o ;
+    //     ?user <${ns.sioc('email').value}> "${rdf.literal(email)}";
+    //   }
+    // }
+    // `;
 
+    // Check if userInfo provided is correct
+    const stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
+    let userExist = await rdf.dataset().import(stream);
+    console.log('userExist :', userExist)
+    if (userExist && userExist.size != 0){
+      let userId = userExist._entities['1'];
+      let getUserStream = this.store.match(rdf.namedNode(userId), null, null, this.userSecurityGraph);
 
+      let user = await rdf.dataset().import(getUserStream);
 
-    let query = `
-    SELECT ?person ?pass WHERE {
-      GRAPH <${this.userSecurityGraph}> {
-        ?person <${ns.sioc('email').value}> "${rdf.literal(email)}".
-        ?person <${ns.sioc('id').value}> "${rdf.literal(id)}".
-        ?person <http://purl.org/NET/acc#password> ?pass.
-      }
-    }
-    `;
-    console.log('query :', query);
-    //Check if userInfo provided is correct
-    const test = this.store.construct(query, this.userSecurityGraph);
-    let stream = this.store.import(test);
-
-    // this.store.match(rdf.namedNode(this.userSecurityGraph.value + this.userSuffix + id), ns.sioc('email'), rdf.literal())
-    
-    //Check if user has permissions
-    return new Promise((resolve, reject) => {
-      rdf.waitFor(stream).then((e) => {
-        resolve(e);
+      let passQuads = user.match(rdf.namedNode(userId), ns.account('password'), null);
+      console.log('passQuads._quads :', passQuads._quads)
+      let pass = "";
+      passQuads.forEach(quad => {
+        pass = quad.object.value;
       })
-    })
-    //DELETE USER CODE
+
+      // let same = bcrypt.compareSync(password, pass);
+
+      // if (same === true){
+      //   let removedStream = this.store.removeMatches(rdf.namedNode(userId), null, null, this.userSecurityGraph);
+      //   // let deleted = await rdf.dataset().import(removedStream);
+      //   return new Promise((resolve, reject) => {
+      //     resolve();
+      //   })
+      // } else {
+      //   return {error:"Bad request", error_type:400, error_description:"Incorrect Password"}
+      // }
+
+      // return new Promise((resolve, reject) => {
+      //   let output = serializer.import(user.toStream());
+      //   output.on('data', jsonld => {
+      //     resolve(jsonld);
+      //   })
+      // })
+      
+    } else {
+      return {error:"Bad request", error_type:400, error_description:"Incorrect info"}
+    }
   }
 
 }

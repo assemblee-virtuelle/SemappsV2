@@ -3,8 +3,13 @@ module.exports = function(userService) {
         POST
     };
 
-    function POST(req, res, next) {
-        res.status(200).json(userService.deleteUser(req.query));
+    async function POST(req, res, next) {
+        
+        let del = await userService.deleteUser(req.query);
+        if (del && del.error){
+            res.status(del.error_type).send(del.error_description);
+        }
+        res.sendStatus(200);
     }
 
     // NOTE: We could also use a YAML string here.
@@ -22,12 +27,6 @@ module.exports = function(userService) {
         {
             in: 'query',
             name: 'password',
-            required: true,
-            type: 'string'
-        },
-        {
-            in: 'query',
-            name: 'id',
             required: true,
             type: 'string'
         },

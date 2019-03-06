@@ -31,8 +31,6 @@ module.exports = class {
 
         this.store = new SparqlStore(sparqlUrl, options);
 
-        
-
         fetch(uri + '/$/server').then(res => {
             //TODO: check WWW authenticate
             if(res.status == 401){
@@ -40,7 +38,6 @@ module.exports = class {
                 //Send auth
             }
 
-            return res;
         })
         .catch(err => {
             console.log('err :', err);

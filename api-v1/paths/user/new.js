@@ -13,7 +13,6 @@ module.exports = function(userService) {
       }
     }
     
-    // NOTE: We could also use a YAML string here.
     POST.apiDoc = {
       summary: 'Creates a Semapps User.',
       operationId: 'createUser',

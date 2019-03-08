@@ -6,8 +6,9 @@ module.exports = function(userService) {
   async function GET(req, res, next) {
     //TODO: Change this and add userByFilter
     const users = await userService.userByFilter(req.query.filter);
-
-    console.log('users :', users)
+    if (users.error){
+      res.status(user.error_status).send(user.error_description);
+    }
 
     res.status(200).send(users);
   }
@@ -22,12 +23,20 @@ module.exports = function(userService) {
         in: 'query',
         name: 'filter',
         required: false,
-        type: 'string'
-      }
+        schema: {
+          type:'object',
+          additionalProperties: {
+            type: "string"
+          },
+        }
+      },
     ],
     responses: {
       200: {
         description: 'User matching name'
+      },
+      400:{
+        description: 'Invalid info'
       },
       default: {
         description: 'An error occurred',

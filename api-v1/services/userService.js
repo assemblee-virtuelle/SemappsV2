@@ -21,28 +21,37 @@ module.exports = class {
 
     this.userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userInfoName);
     this.userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
-    
-    // console.log('userGraph :', this.userInfoGraph.value)
-    // console.log('userSecurity :', this.userSecurityGraph.value)
+
   }
 
   async userByFilter(filters){
 
     // let graph = filters.graph;
     // let username = filters.username;
-    let username = filters;
+    let users;
+    if (!filters){
+      const allUsersStream = this.store.match(null, null, null, this.userSecurityGraph)  
+      users = await rdf.dataset().import(allUsersStream);
 
-    //Apply filters to match
-    const stream = this.store.match(null, null, rdf.literal(username));
-    
-    let users = await rdf.dataset().import(stream);
+    } else {
+      let username = filters;
+      //Manage filters
+
+      const userStream = this.store.match(null, null, rdf.literal(username), this.userSecurityGraph);
+      users = await rdf.dataset().import(userStream);
+    }
 
     return new Promise((resolve, reject) => {
+      //convert to JSON LD
       let output = serializer.import(users.toStream());
       output.on('data', jsonld => {
         resolve(jsonld);
       })
     })
+  }
+
+  async getUserAccount(id){
+    //Get User Info
   }
   
   async userById(id){
@@ -55,7 +64,6 @@ module.exports = class {
       user.import(stream).then(dataset => {
         let output = serializer.import(dataset.toStream());
         output.on('data', jsonld => {
-          console.log('jsonld :')
           resolve(jsonld);
         })
       })
@@ -68,6 +76,7 @@ module.exports = class {
 
     //IMPORTANT NOTE: semapps design transition on webc load
 
+    console.log('userInfo :', userInfo);
     //VERIFY USER INFO
     if (userInfo.username && userInfo.email && userInfo.password){
       const email = userInfo.email;
@@ -134,6 +143,10 @@ module.exports = class {
     } else {
       return {error:"Bad request", error_type:400, error_description:"Incorrect info"}
     }
+  }
+
+  async createUserInfo(userInfo){
+    
 
   }
   
@@ -169,7 +182,6 @@ module.exports = class {
       let user = await rdf.dataset().import(getUserStream);
 
       let passQuads = user.match(rdf.namedNode(userId), ns.account('password'), null);
-      console.log('passQuads._quads :', passQuads._quads)
       let pass = "";
       passQuads.forEach(quad => {
         pass = quad.object.value;

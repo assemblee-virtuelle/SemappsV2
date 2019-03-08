@@ -5,6 +5,8 @@ const v1ApiDoc = require('../api-v1/api-doc');
 const swaggerUi = require('swagger-ui-express');
 const SparqlStore = require('../api-v1/services/tripleStoreClient');
 const fs = require('fs');
+let bodyParser = require('body-parser');
+
 
 const app = express();
 
@@ -13,6 +15,8 @@ const options = {
     swaggerUrl: "http://localhost:3333/v1/api-docs"
 }
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 //Triple Store options 
 const tpsOptions = {

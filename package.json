@@ -23,6 +23,7 @@
     "swagger-ui-express": "^4.0.2"
   },
   "devDependencies": {
+    "body-parser": "^1.18.3",
     "chai": "^4.2.0",
     "mocha": "^6.0.2",
     "supertest": "^3.4.2"

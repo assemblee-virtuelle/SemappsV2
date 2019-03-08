@@ -22,13 +22,8 @@ module.exports = function(userService) {
       {
         in: 'query',
         name: 'filter',
-        required: false,
-        schema: {
-          type:'object',
-          additionalProperties: {
-            type: "string"
-          },
-        }
+        required: true,
+        type: 'string'
       },
     ],
     responses: {

@@ -14,6 +14,7 @@ const app = express();
 const options = {
     swaggerUrl: "http://localhost:3333/v1/api-docs"
 }
+
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -22,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const tpsOptions = {
     "uri":"http://localhost",
     "port": "3030",
-    "dataset": "TestsSemapps",
+    "dataset": "TestSemapps",
     "sparqlEndpoint": "/sparql",
     "updateEndpoint": "/update",
     "graphEndpoint": "/data",

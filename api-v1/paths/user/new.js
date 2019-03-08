@@ -3,8 +3,8 @@ module.exports = function(userService) {
       POST
     };
     
-    async function POST(req, res, next) {
-      let ret = await userService.createUser(req.query);
+    async function POST(req, res, next) {      
+      let ret = await userService.createUser(req.body);
 
       if (ret && ret.error){
         res.status(ret.error_status).send(ret.error_description);
@@ -19,26 +19,21 @@ module.exports = function(userService) {
       tags:["user"],
       parameters: [
         {
-            in: 'query',
-            name: 'username',
+            in: 'body',
+            name: 'user',
             required: true,
-            type: 'string'
-        },
-        {
-            in: 'query',
-            name: 'email',
-            required: true,
-            type: 'string'
-        },
-        {
-            in: 'query',
-            name: 'password',
-            required: true,
-            type: 'string'
-        },
+            schema: {
+              type: 'object',
+              properties: {
+                username: {type:'string'},
+                email: {type:'string'},
+                password: {type:'string'}
+              }
+            }
+        }
       ],
       responses: {
-        200: {
+        201: {
           description: 'New User Created'
         },
         400: {

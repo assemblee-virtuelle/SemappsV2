@@ -10,7 +10,6 @@ describe('API', () => {
     let user;
 
     before(done => {
-
         app = request(app);
         done();
     })
@@ -38,52 +37,58 @@ describe('API', () => {
 
     describe('User API', () => {
 
+        user = {
+            username:"samy",
+            email:"samy@samy.fr",
+            password:'test'
+        } //TODO: seed the user
+
+        let id = "";
+
         it('Creates a new user', done => {
             app.post('/v1/user/new')
-            .send({
-                'username':'toto',
-                'email':'toto@test.fr',
-                'password':'test'
-            })
-            .set('Accept', 'application/json')
+            .send(user)
+            .type('form')
+            .set('Accept', /application\/json/)
             .expect(201, (err, res) => {
                 if(err) { return done(err); }
-                console.log('res :', res.text);
+                id = res.body.id
                 done();
             })
         })
 
         it('Check if email exist', done => {
-            let data = {
-                "username":"samy",
-                "email":"samy@samy.fr",
-                "password":"test"
-            }
             app.post('/v1/user/new')
-            .send(data)
-            .set('Content-Type', 'application/json')
-            .set('Accept', 'application/json')
+            .type('form')
+            .send(user)
+            .set('Accept', /application\/json/)
             .expect(409, (err, res) => {
                 if(err) { return done(err); }
-                console.log('res :', res.text);
                 done();
             })
         })
 
-        it('Return a list of user', done => {
-            let data = {
-                "filter":"samy",
-                "tho":"pouet"
-            }
-
-            app.get('/v1/users')
-            .type('form')
-            .set('Accept', 'application/json')
-            .send(JSON.stringify(data))
+        it('Return a single User', done => {
+            console.log('id :', id)
+            app.get(`/v1/user/${id}`)
             .expect('Content-Type', /json/)
             .expect(200, function(err, res) {
                 if(err) { return done(err); }
-                console.log('res :', res);
+                done();
+            })
+        })
+
+        // it('Edit an user', done => {
+        //     //Edit user
+        //     done();
+        // })
+
+        it('Deletes an user', done => {
+            app.get('/v1/user/delete')
+            .set('Accept', /application\/json/)
+            .query()
+            .expect(200, (err, res) => {
+                if (err) { return done(err); }
                 done();
             })
         })

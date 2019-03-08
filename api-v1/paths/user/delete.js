@@ -4,10 +4,10 @@ module.exports = function(userService) {
     };
 
     async function POST(req, res, next) {
-        
-        let del = await userService.deleteUser(req.query);
+        console.log("Delete user")
+        let del = await userService.deleteUser(req.body);
         if (del && del.error){
-            res.status(del.error_type).send(del.error_description);
+            res.status(del.error_status).send(del.error_description);
         }
         res.sendStatus(200);
     }

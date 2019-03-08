@@ -17,7 +17,7 @@ module.exports = class {
     let userInfoName = "Users";
     let userSecurityName = "UserSecurity";
 
-    this.userSuffix = "#user_";
+    this.userSuffix = "#user_"; //Todo: put that in config
 
     this.userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userInfoName);
     this.userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
@@ -51,14 +51,15 @@ module.exports = class {
   }
 
   async getUserAccount(id){
-    //Get User Info
+    
   }
   
   async userById(id){
     //FETCH USER INFO FROM ID
-    //Get user info from security graph or info graph directly ?
-    const stream = this.client.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
 
+    const stream = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
+
+    let user = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
     const user = rdf.dataset();
     return new Promise((resolve, reject) => {
       user.import(stream).then(dataset => {
@@ -73,10 +74,6 @@ module.exports = class {
   async createUser(userInfo){
     //TODO: mettre les infos dans un fichier de config
 
-
-    //IMPORTANT NOTE: semapps design transition on webc load
-
-    console.log('userInfo :', userInfo);
     //VERIFY USER INFO
     if (userInfo.username && userInfo.email && userInfo.password){
       const email = userInfo.email;
@@ -141,73 +138,76 @@ module.exports = class {
         })
       }
     } else {
-      return {error:"Bad request", error_type:400, error_description:"Incorrect info"}
+      return {error:"Bad request", error_status:400, error_description:"Incorrect info"}
     }
   }
 
   async createUserInfo(userInfo){
-    
 
+    //First parse ontology in semapps front or in back with Simon's tech
+    //Then compare form info with parsed ontology object for validation
+    //Send the json ld if in front, if in back send the form and convert it to json ld
+    //Then fill userInfo into a dataset and import it into the triple store
+
+    let user = {
+      "@context": {
+        "name": "http://xmlns.com/foaf/0.1/name",
+        "homepage": {
+          "@id": "http://xmlns.com/foaf/0.1/workplaceHomepage",
+          "@type": "@id"
+        },
+        "Person": "http://xmlns.com/foaf/0.1/Person"
+      },
+      "@id": "http://me.example.com",
+      "@type": "Person",
+      "name": "John Smith",
+      "homepage": "http://www.example.com/"
+    }
+
+    let userInfoDataset = rdf.dataset().import(user.toStream());
+    console.log('userInfoDataset :', userInfoDataset)
   }
   
   async editUser(userInfo){
-    console.log("Edit User", userInfo);
-    //EDIT USER CODE
+    
   }
 
+  //Delete an user
   async deleteUser(userInfo){
 
     let email = userInfo.email;
     let password = userInfo.password;
+    let id = userInfo.id;
 
-    // let query = `
-    // CONSTRUCT {
-    //   ?user ?p ?o
-    // } WHERE {
-    //   GRAPH <${this.userSecurityGraph}> {
-    //     ?user ?p ?o ;
-    //     ?user <${ns.sioc('email').value}> "${rdf.literal(email)}";
-    //   }
-    // }
-    // `;
+    let userId = this.userInfoGraph.value + this.userSuffix + id;
 
     // Check if userInfo provided is correct
-    const stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
-    let userExist = await rdf.dataset().import(stream);
-    console.log('userExist :', userExist)
-    if (userExist && userExist.size != 0){
-      let userId = userExist._entities['1'];
-      let getUserStream = this.store.match(rdf.namedNode(userId), null, null, this.userSecurityGraph);
+    const stream = this.store.match(rdf.namedNode(userId), ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
+    let user = await rdf.dataset().import(stream);
+    console.log('user :', user)
 
-      let user = await rdf.dataset().import(getUserStream);
+    //If user is correct
+    if (user && user.size != 0){
 
-      let passQuads = user.match(rdf.namedNode(userId), ns.account('password'), null);
+      let passQuads = user.match(rdf.namedNode(userId), ns.account('password'), null, this.userSecurityGraph);
       let pass = "";
       passQuads.forEach(quad => {
         pass = quad.object.value;
       })
 
-      // let same = bcrypt.compareSync(password, pass);
+      let same = bcrypt.compareSync(password, pass);
 
-      // if (same === true){
-      //   let removedStream = this.store.removeMatches(rdf.namedNode(userId), null, null, this.userSecurityGraph);
-      //   // let deleted = await rdf.dataset().import(removedStream);
-      //   return new Promise((resolve, reject) => {
-      //     resolve();
-      //   })
-      // } else {
-      //   return {error:"Bad request", error_type:400, error_description:"Incorrect Password"}
-      // }
-
-      // return new Promise((resolve, reject) => {
-      //   let output = serializer.import(user.toStream());
-      //   output.on('data', jsonld => {
-      //     resolve(jsonld);
-      //   })
-      // })
-      
+      if (same === true){
+        let removedStream = this.store.removeMatches(rdf.namedNode(userId), null, null, this.userSecurityGraph);
+        let deleted = await rdf.dataset().import(removedStream);
+        return new Promise((resolve, reject) => {
+          resolve();
+        })
+      } else {
+        return {error:"Bad request", error_status:400, error_description:"Incorrect Password"}
+      }
     } else {
-      return {error:"Bad request", error_type:400, error_description:"Incorrect info"}
+      return {error:"Bad request", error_status:400, error_description:"Incorrect info"}
     }
   }
 

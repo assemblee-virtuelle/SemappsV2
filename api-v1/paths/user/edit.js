@@ -4,7 +4,7 @@ module.exports = function(userService) {
     };
     
     function POST(req, res, next) {
-      res.status(200).json(userService.editUser(req.query));
+      res.status(200).json(userService.editUser(req.body));
     }
     
     // NOTE: We could also use a YAML string here.
@@ -12,30 +12,24 @@ module.exports = function(userService) {
       summary: 'Edit a Semapps User.',
       operationId: 'editUser',
       tags:["user"],
+      consumes: ['application/json'],
       parameters: [
         {
-            in: 'query',
-            name: 'username',
-            required: false,
-            type: 'string'
-        },
-        {
-            in: 'query',
-            name: 'email',
-            required: false,
-            type: 'string'
-        },
-        {
-            in: 'query',
-            name: 'password',
-            required: false,
-            type: 'string'
-        },
-        {
-            in: 'query',
-            name: 'id',
+            in: 'body',
+            name: 'user',
             required: true,
-            type: 'string'
+            schema: {
+              type:'object',
+              properties: {
+                id: {
+                  type: 'string',
+                }
+              },
+              required: ['id'],
+              additionalProperties: {
+                type: "string"
+              }
+            }
         },
       ],
       responses: {

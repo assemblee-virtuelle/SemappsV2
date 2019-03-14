@@ -19,17 +19,22 @@ module.exports = function(authService) {
       tags:["auth"],
       parameters: [
         {
-          in: 'body',
-          name: 'user',
-          required: true,
-          schema: {
-            type: 'object',
-            properties: {
-              username: {type:'string'},
-              email: {type:'string'},
-              password: {type:'string'}
-            }
-          }
+          in:'formData',
+          name:'username',
+          type:'string',
+          required:true
+        },
+        {
+          in:'formData',
+          name:'password',
+          type:'string',
+          required:true
+        },
+        {
+          in:'formData',
+          name:'email',
+          type:'string',
+          required:true
         }
       ],
       responses: {

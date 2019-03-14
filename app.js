@@ -8,7 +8,6 @@ const swaggerUi = require('swagger-ui-express');
 const SparqlStore = require('./api-v1/services/tripleStoreClient');
 const bodyParser = require('body-parser');
 const fs = require('fs');
-const cors = require('cors');
 
 const app = express();
 
@@ -19,7 +18,11 @@ const options = {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cors());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+});
 
 
 //Triple Store options
@@ -44,12 +47,9 @@ const _userService = new v1UserService(sparqlStore);
 const _authService = new v1AuthService(sparqlStore);
 const _resourceService = new v1ResourceService(sparqlStore);
 
-
 //Initialize Swagger
-initialize({
+let init = initialize({
   app,
-  // NOTE: If using yaml it's necessary to use "fs" e.g.
-  // apiDoc: fs.readFileSync(path.resolve(__dirname, './api-v1/api-doc.yml'), 'utf8'),
   apiDoc: v1ApiDoc,
   dependencies: {
     userService: _userService,
@@ -60,11 +60,11 @@ initialize({
   promiseMode: true,
 });
 
-//Launch app if not in test mode
 if (process.env.NODE_ENV !== 'test'){
   app.listen(3000, () => {
     console.log("Launched on http://localhost:3000");
   });
 }
+//Launch app if not in test mode
 
 module.exports = app;

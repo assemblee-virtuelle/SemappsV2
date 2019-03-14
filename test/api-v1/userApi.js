@@ -1,16 +1,11 @@
 let expect = require('chai').expect;
 let request = require("supertest")
-let server = require('../../app');
+let tests = require('../app');
 
+let app = tests.app;
+let user = tests.user;
 
 describe('API', () => {
-    let user;
-    let app;
-
-    before(done => {
-        app = request.agent(server.listen(3001));
-        done();
-    })
 
     describe('Jena API', () => {
         let jena;
@@ -75,13 +70,14 @@ describe('API', () => {
 
         let id = "";
 
-        it('Creates a new user', done => {
+        it('Creates a new user (auth)', done => {
             app.post('/v1/auth/new')
             .send(user)
             .set('Accept', /application\/json/)
             .expect(201, (err, res) => {
                 if(err) { return done(err); }
                 id = res.body.id
+                tests.user.id = id;
                 done();
             })
         })
@@ -121,15 +117,19 @@ describe('API', () => {
             let toDelete = {
                 email:user.email,
                 password:user.password,
-                id:id
             }
             app.post('/v1/user/delete')
             .set('Accept', /application\/json/)
+            .set('Authorization', `Basic ${id}`)
             .send(toDelete)
             .expect(200, (err, res) => {
                 if (err) { return done(err); }
                 done();
             })
         })
+    })
+
+    after((done) => {
+        done();
     })
 })

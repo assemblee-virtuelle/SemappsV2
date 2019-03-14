@@ -4,7 +4,7 @@ module.exports = function(userService) {
     };
 
     async function POST(req, res, next) {
-        let del = await userService.deleteUser(req.body);
+        let del = await userService.deleteUser(req.headers, req.body);
         if (del && del.error){
             res.status(del.error_status).send(del.error_description);
         }
@@ -17,19 +17,25 @@ module.exports = function(userService) {
         operationId: 'deleteUser',
         tags:["user"],
         parameters: [
-        {
-            in: 'body',
-            name: 'toDelete',
-            required: true,
-            schema: {
-                type:'object',
-                properties:{
-                    id: {type:'string'},
-                    email: {type:'string'},
-                    password: {type:'string'},
+            {
+                in:'header',
+                name:'Authorization',
+                required: true,
+                type:'string',
+                description:'User ID, bearer token in future'
+            },
+            {
+                in: 'body',
+                name: 'toDelete',
+                required: true,
+                schema: {
+                    type:'object',
+                    properties:{
+                        email: {type:'string'},
+                        password: {type:'string'},
+                    }
                 }
-            }
-        },
+            },
         ],
         responses: {
         200: {

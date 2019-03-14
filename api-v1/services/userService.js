@@ -98,11 +98,16 @@ module.exports = class {
   }
 
   //Delete an user
-  async deleteUser(userInfo){
+  async deleteUser(headers, userInfo){
 
     let email = userInfo.email;
     let password = userInfo.password;
-    let id = userInfo.id;
+    let id = "";
+    if (headers.authorization) {
+      id = headers.authorization.replace('Basic ', '');
+    } else {
+      return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
+    }
 
     let userId = this.userSecurityGraph.value + this.userSuffix + id;
 

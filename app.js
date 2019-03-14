@@ -8,6 +8,7 @@ const swaggerUi = require('swagger-ui-express');
 const SparqlStore = require('./api-v1/services/tripleStoreClient');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const cors = require('cors');
 
 const app = express();
 
@@ -18,6 +19,7 @@ const options = {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cors());
 
 
 //Triple Store options

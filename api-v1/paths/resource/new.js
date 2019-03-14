@@ -4,12 +4,10 @@ module.exports = function(resourceService) {
     };
     
     async function POST(req, res, next) {
-      //TODO: Change this and add userByFilter
-      const resource = await resourceService.create(req.query);
+      const resource = await resourceService.create(req.headers, req.query);
       if (resource.error){
         res.status(user.error_status).send(user.error_description);
       }
-  
       res.status(200).send(resource);
     }
     
@@ -19,24 +17,25 @@ module.exports = function(resourceService) {
       operationId: 'create',
       tags:["resource"],
       parameters: [
-        // {
-        //   in: 'header',
-        //   name: 'token',
-        //   required: true,
-        //   type: 'string',
-        //   description:'Authrization: Bearer token'
-        // },
+        {
+          in: 'header',
+          name: 'Authorization',
+          required: true,
+          type: 'string',
+          description:'User ID, bearer token in future'
+        },
         {
           in: 'query',
           name: 'type',
-          required: true,
-          type: 'string',
+          required:true,
+          type:'string',
           description:'The type of resource',
         },
         {
             in:'body',
             name:'resource',
             required:true,
+            description:'Resource to add in jsonLD',
             schema:{
               type:'object',
               additionalProperties:{

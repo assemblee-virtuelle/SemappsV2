@@ -15,8 +15,6 @@ module.exports = function(userService) {
   async function GET(req, res, next) {
 
     if(req.params && req.params.id !== "new" && req.params.id !== "edit" && req.params.id !== "delete"){
-      console.log('req.params :', req.params)
-      console.log('req.params.id :', req.params.id)
       let ret = await userService.userById(req.params.id);
   
       if (ret && ret.error){

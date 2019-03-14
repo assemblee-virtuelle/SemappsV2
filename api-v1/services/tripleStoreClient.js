@@ -40,6 +40,7 @@ module.exports = class {
 
         })
         .catch(err => {
+            console.log("Server Jena offline")
             // console.log('err :', err); //Throw err
         });
     }

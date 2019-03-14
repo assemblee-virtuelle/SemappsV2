@@ -1,26 +1,56 @@
-let express = require('express');
-let request = require('supertest');
 let expect = require('chai').expect;
-let app = require('../server');
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
+let request = require("supertest")
+let server = require('../../app');
 
 
 describe('API', () => {
     let user;
+    let app;
 
     before(done => {
-        app = request(app);
+        app = request.agent(server.listen(3000));
         done();
     })
 
-    it('Jena is running', (done) => {
-        request('http://localhost:3030')
-        .get('/')
-        .expect(200, (err, res) => {
-            if(err) {return done(err);}
+    describe('Jena API', () => {
+        let jena;
+        let datasetName = "TestSemapps";
+
+        before(done => {
+            jena = request('http://localhost:3030');
             done();
         })
+
+        it('Jena is running', (done) => {
+            jena
+            .get('/')
+            .expect(200, (err, res) => {
+                if(err) {return done(err);}
+                done();
+            })
+        })
+
+        it('Delete Dataset if exist', done => {
+            jena
+            .delete(`/$/datasets/${datasetName}`)
+            .expect(404, (err, res) => {
+                if(err && res.status !== 200) {
+                    return done(err);
+                }
+                done();
+            })
+        })
+
+        it('Creates a dataset', done =>{
+            jena
+            .post(`/$/datasets`)
+            .query(`dbType=mem&dbName=${datasetName}`)
+            .expect(200, (err, res) => {
+                if (err) {return done(err)}
+                done();
+            })
+        })
+
     })
 
     it('Api is running', (done) => {
@@ -48,7 +78,6 @@ describe('API', () => {
         it('Creates a new user', done => {
             app.post('/v1/user/new')
             .send(user)
-            .type('form')
             .set('Accept', /application\/json/)
             .expect(201, (err, res) => {
                 if(err) { return done(err); }
@@ -57,9 +86,20 @@ describe('API', () => {
             })
         })
 
+        it('Logs in', done => {
+            app.post('/auth/login')
+            .send({
+                password:user.password,
+                email:user.email
+            })
+            .expect(200, (err, res) => {
+                if (err) { return done(err);}
+                done();
+            })
+        })
+
         it('Check if email exist', done => {
             app.post('/v1/user/new')
-            .type('form')
             .send(user)
             .set('Accept', /application\/json/)
             .expect(409, (err, res) => {
@@ -69,7 +109,6 @@ describe('API', () => {
         })
 
         it('Return a single User', done => {
-            console.log('id :', id)
             app.get(`/v1/user/${id}`)
             .expect('Content-Type', /json/)
             .expect(200, function(err, res) {
@@ -78,15 +117,15 @@ describe('API', () => {
             })
         })
 
-        // it('Edit an user', done => {
-        //     //Edit user
-        //     done();
-        // })
-
         it('Deletes an user', done => {
-            app.get('/v1/user/delete')
+            let toDelete = {
+                email:user.email,
+                password:user.password,
+                id:id
+            }
+            app.post('/v1/user/delete')
             .set('Accept', /application\/json/)
-            .query()
+            .send(toDelete)
             .expect(200, (err, res) => {
                 if (err) { return done(err); }
                 done();

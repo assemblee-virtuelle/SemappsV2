@@ -24,6 +24,7 @@ module.exports = class {
 
   }
 
+  //TODO: Supprimer ?
   async userByFilter(filters){
 
     // let graph = filters.graph;
@@ -49,24 +50,20 @@ module.exports = class {
       })
     })
   }
-
-  async getUserAccount(id){
-    
-  }
   
   async userById(id){
     //FETCH USER INFO FROM ID
 
     const stream = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
 
-    let user = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
-    const user = rdf.dataset();
+    let user = await rdf.dataset().import(stream);
+
+    //TODO: Get user info 
+    
     return new Promise((resolve, reject) => {
-      user.import(stream).then(dataset => {
-        let output = serializer.import(dataset.toStream());
-        output.on('data', jsonld => {
-          resolve(jsonld);
-        })
+      let output = serializer.import(user.toStream());
+      output.on('data', jsonld => {
+        resolve(jsonld);
       })
     })
   }
@@ -144,6 +141,7 @@ module.exports = class {
 
   async createUserInfo(userInfo){
 
+    //TODO:
     //First parse ontology in semapps front or in back with Simon's tech
     //Then compare form info with parsed ontology object for validation
     //Send the json ld if in front, if in back send the form and convert it to json ld
@@ -165,7 +163,6 @@ module.exports = class {
     }
 
     let userInfoDataset = rdf.dataset().import(user.toStream());
-    console.log('userInfoDataset :', userInfoDataset)
   }
   
   async editUser(userInfo){
@@ -179,28 +176,25 @@ module.exports = class {
     let password = userInfo.password;
     let id = userInfo.id;
 
-    let userId = this.userInfoGraph.value + this.userSuffix + id;
+    let userId = this.userSecurityGraph.value + this.userSuffix + id;
 
     // Check if userInfo provided is correct
     const stream = this.store.match(rdf.namedNode(userId), ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
     let user = await rdf.dataset().import(stream);
-    console.log('user :', user)
 
     //If user is correct
-    if (user && user.size != 0){
-
-      let passQuads = user.match(rdf.namedNode(userId), ns.account('password'), null, this.userSecurityGraph);
+    if (user && user.length != 0){
+      let passStream = this.store.match(rdf.namedNode(userId), ns.account('password'), null, this.userSecurityGraph);
       let pass = "";
+      let passQuads = await rdf.dataset().import(passStream);
       passQuads.forEach(quad => {
         pass = quad.object.value;
       })
-
       let same = bcrypt.compareSync(password, pass);
 
       if (same === true){
-        let removedStream = this.store.removeMatches(rdf.namedNode(userId), null, null, this.userSecurityGraph);
-        let deleted = await rdf.dataset().import(removedStream);
         return new Promise((resolve, reject) => {
+          this.store.removeMatches(rdf.namedNode(userId), null, null, this.userSecurityGraph);
           resolve();
         })
       } else {

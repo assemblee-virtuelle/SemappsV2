@@ -3,7 +3,7 @@ module.exports = function(userService) {
       POST
     };
     
-    async function POST(req, res, next) {      
+    async function POST(req, res, next) {
       let ret = await userService.createUser(req.body);
 
       if (ret && ret.error){
@@ -19,17 +19,17 @@ module.exports = function(userService) {
       tags:["user"],
       parameters: [
         {
-            in: 'body',
-            name: 'user',
-            required: true,
-            schema: {
-              type: 'object',
-              properties: {
-                username: {type:'string'},
-                email: {type:'string'},
-                password: {type:'string'}
-              }
+          in: 'body',
+          name: 'user',
+          required: true,
+          schema: {
+            type: 'object',
+            properties: {
+              username: {type:'string'},
+              email: {type:'string'},
+              password: {type:'string'}
             }
+          }
         }
       ],
       responses: {

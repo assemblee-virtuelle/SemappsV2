@@ -76,7 +76,7 @@ describe('API', () => {
         let id = "";
 
         it('Creates a new user', done => {
-            app.post('/v1/user/new')
+            app.post('/v1/auth/new')
             .send(user)
             .set('Accept', /application\/json/)
             .expect(201, (err, res) => {
@@ -86,24 +86,24 @@ describe('API', () => {
             })
         })
 
+        it('Check if email exist', done => {
+            app.post('/v1/auth/new')
+            .send(user)
+            .set('Accept', /application\/json/)
+            .expect(409, (err, res) => {
+                if(err) { return done(err); }
+                done();
+            })
+        })
+
         it('Logs in', done => {
-            app.post('/auth/login')
+            app.post('/v1/auth/login')
             .send({
                 password:user.password,
                 email:user.email
             })
             .expect(200, (err, res) => {
                 if (err) { return done(err);}
-                done();
-            })
-        })
-
-        it('Check if email exist', done => {
-            app.post('/v1/user/new')
-            .send(user)
-            .set('Accept', /application\/json/)
-            .expect(409, (err, res) => {
-                if(err) { return done(err); }
                 done();
             })
         })

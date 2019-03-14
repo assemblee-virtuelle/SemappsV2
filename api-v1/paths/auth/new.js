@@ -1,10 +1,10 @@
-module.exports = function(userService) {
+module.exports = function(authService) {
     let operations = {
       POST
     };
     
     async function POST(req, res, next) {
-      let ret = await userService.createUser(req.body);
+      let ret = await authService.createUser(req.body);
 
       if (ret && ret.error){
         res.status(ret.error_status).send(ret.error_description);
@@ -14,9 +14,9 @@ module.exports = function(userService) {
     }
     
     POST.apiDoc = {
-      summary: 'Creates a Semapps User.',
+      summary: 'Creates a Semapps User (auth).',
       operationId: 'createUser',
-      tags:["user"],
+      tags:["auth"],
       parameters: [
         {
           in: 'body',

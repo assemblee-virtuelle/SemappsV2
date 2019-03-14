@@ -8,7 +8,7 @@ describe('API', () => {
     let app;
 
     before(done => {
-        app = request.agent(server.listen(3000));
+        app = request.agent(server.listen(3001));
         done();
     })
 

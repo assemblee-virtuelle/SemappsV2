@@ -60,8 +60,8 @@ initialize({
 
 //Launch app if not in test mode
 if (process.env.NODE_ENV !== 'test'){
-  app.listen(8000, () => {
-    console.log("Launched on http://localhost:8000");
+  app.listen(3000, () => {
+    console.log("Launched on http://localhost:3000");
   });
 }
 

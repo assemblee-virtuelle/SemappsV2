@@ -8,6 +8,7 @@ const swaggerUi = require('swagger-ui-express');
 const SparqlStore = require('./api-v1/services/tripleStoreClient');
 const bodyParser = require('body-parser');
 const fs = require('fs');
+const cors = require('cors')
 
 const app = express();
 
@@ -18,11 +19,7 @@ const options = {
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  next();
-});
+app.use(cors());
 
 
 //Triple Store options
@@ -56,8 +53,15 @@ let init = initialize({
     authService: _authService,
     resourceService: _resourceService
   },
+  consumesMiddleware:{
+    'application/json':bodyParser.json()
+  },
   paths: './api-v1/paths', //Use filesystem as paths
   promiseMode: true,
+});
+
+app.use(function(err, req, res, next) {
+  res.status(err.status).json(err);
 });
 
 if (process.env.NODE_ENV !== 'test'){

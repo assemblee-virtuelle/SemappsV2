@@ -19,23 +19,23 @@ module.exports = function(authService) {
       tags:["auth"],
       parameters: [
         {
-          in:'formData',
-          name:'username',
+          in: 'formData',
+          name: 'username',
+          required: true,
           type:'string',
-          required:true
         },
         {
-          in:'formData',
-          name:'password',
+          in: 'formData',
+          name: 'email',
+          required: true,
           type:'string',
-          required:true
         },
         {
-          in:'formData',
-          name:'email',
+          in: 'formData',
+          name: 'password',
+          required: true,
           type:'string',
-          required:true
-        }
+        },
       ],
       responses: {
         201: {

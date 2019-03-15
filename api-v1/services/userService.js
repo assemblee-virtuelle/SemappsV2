@@ -7,20 +7,11 @@ const serializer = new Serializer();
 
 
 module.exports = class {
-  constructor(sparqlStore){
+  constructor(client){
     //Initialize sparql client
-    this.client = sparqlStore;
-    this.store = sparqlStore.store;
-    this.httpClient = sparqlStore.store.client;
-    
-    let userInfoName = "Users";
-    let userSecurityName = "UserSecurity";
-
-    this.userSuffix = "#user_"; //Todo: put that in config
-
-    this.userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userInfoName);
-    this.userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
-
+    this.store = client.store;    
+    this.sGraph = client.securityGraph();
+    this.client = client;
   }
 
   //TODO: Supprimer ?
@@ -30,14 +21,14 @@ module.exports = class {
     // let username = filters.username;
     let users;
     if (!filters){
-      const allUsersStream = this.store.match(null, null, null, this.userSecurityGraph)  
+      const allUsersStream = this.store.match(null, null, null, this.sGraph)  
       users = await rdf.dataset().import(allUsersStream);
 
     } else {
       let username = filters;
       //Manage filters
 
-      const userStream = this.store.match(null, null, rdf.literal(username), this.userSecurityGraph);
+      const userStream = this.store.match(null, null, rdf.literal(username), this.sGraph);
       users = await rdf.dataset().import(userStream);
     }
 
@@ -53,7 +44,7 @@ module.exports = class {
   async userById(id){
     //FETCH USER INFO FROM ID
 
-    const stream = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.userSecurityGraph);
+    const stream = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.sGraph);
 
     let user = await rdf.dataset().import(stream);
 
@@ -109,15 +100,15 @@ module.exports = class {
       return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
     }
 
-    let userId = this.userSecurityGraph.value + this.userSuffix + id;
+    let userId = this.sGraph.value + this.client.userSuffix + id;
 
     // Check if userInfo provided is correct
-    const stream = this.store.match(rdf.namedNode(userId), ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
+    const stream = this.store.match(rdf.namedNode(userId), ns.sioc('email'), rdf.literal(email), this.sGraph);
     let user = await rdf.dataset().import(stream);
 
     //If user is correct
     if (user && user.length != 0){
-      let passStream = this.store.match(rdf.namedNode(userId), ns.account('password'), null, this.userSecurityGraph);
+      let passStream = this.store.match(rdf.namedNode(userId), ns.account('password'), null, this.sGraph);
       let pass = "";
       let passQuads = await rdf.dataset().import(passStream);
       passQuads.forEach(quad => {
@@ -127,7 +118,7 @@ module.exports = class {
 
       if (same === true){
         return new Promise((resolve, reject) => {
-          this.store.removeMatches(rdf.namedNode(userId), null, null, this.userSecurityGraph);
+          this.store.removeMatches(rdf.namedNode(userId), null, null, this.sGraph);
           resolve();
         })
       } else {

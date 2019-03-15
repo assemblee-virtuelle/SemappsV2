@@ -25,21 +25,15 @@ module.exports = function(resourceService) {
           description:'User ID, bearer token in future'
         },
         {
-          in: 'query',
-          name: 'type',
-          required:true,
-          type:'string',
-          description:'The type of resource',
-        },
-        {
             in:'body',
             name:'resource',
             required:true,
             description:'Resource to add in jsonLD',
             schema:{
               type:'object',
-              additionalProperties:{
-                type:'string'
+              properties:{
+                resourceType: {type:'string'},
+                resourceData: {type:'object'}
               }
             }
         }

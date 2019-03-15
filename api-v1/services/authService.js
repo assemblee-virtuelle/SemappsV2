@@ -5,30 +5,26 @@ const ns = require('../utils/namespaces.js');
 const saltRounds = 10;
 
 module.exports = class {
-    constructor(sparqlStore){
-
-        this.client = sparqlStore;
-        this.store = sparqlStore.store;
-        this.httpClient = sparqlStore.store.client;
-        
-        let userInfoName = "Users";
-        let userSecurityName = "UserSecurity";
-    
-        this.userSuffix = "#user_"; //Todo: put that in config
-
-        this.userInfoGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userInfoName);
-        this.userSecurityGraph = rdf.namedNode(this.client.graphEndpoint + '/' + userSecurityName);
-
+    constructor(client){
+        //TODO: get graph name from config
+        this.uGraph = client.graph('User');
+        this.store = client.store;
+        this.sGraph = client.securityGraph();
+        this.client = client;
     }
 
     async login(email, password){
         if (email && password){
-            let matchStream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
+            let matchStream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
+            let user = await rdf.dataset().import(matchStream);
 
-            let user = await rdf.namedNode().import(matchStream);
+            let id = user.toArray()[0].subject.value;
+
+          // console.log('user', user)
 
             if (user && user.size != 0){
-                let findPw = user.match(null, ns.account('password'), null, this.userSecurityGraph);
+                let pwStream = this.store.match(null, ns.account('password'), null, this.sGraph);
+                let findPw = await rdf.dataset().import(pwStream);
                 let pass = "";
                 findPw.forEach(quad => {
                     pass = quad.object.value;
@@ -37,16 +33,20 @@ module.exports = class {
                 let test = bcrypt.compareSync(password, pass);
                 if (test === true){
                     return new Promise((resolve, reject) => {
-                        resolve();
+                      // console.log('user :', user)
+                      resolve();
                     })
+                } else {
+                  return {error:'Bad request', error_status:400, error_description:'Incorrect Password'}
                 }
+            } else {
+              return {error:'Bad request', error_status:400, error_description:'No user'}
             }
         }
     }
 
       
   async createUser(userInfo){
-    //TODO: mettre les infos dans un fichier de config
 
     //VERIFY USER INFO
     if (userInfo.username && userInfo.email && userInfo.password){
@@ -55,7 +55,8 @@ module.exports = class {
       let response = "";
 
       //Check if email is taken
-      let stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.userSecurityGraph);
+        
+      let stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
 
       let matches = await rdf.dataset().import(stream);
       if (matches && matches.size != 0){
@@ -67,14 +68,16 @@ module.exports = class {
         //Generate random ID
         let current_date = (new Date()).valueOf().toString();
         let id = crypto.randomBytes(5).toString('hex') + current_date;
-        let suffix = this.userSuffix + id;
+        let suffix = this.client.userSuffix + id;
+
+        console.log('suffix', suffix)
 
         //Hash Password
         let salt = bcrypt.genSaltSync(saltRounds);
         let hash = bcrypt.hashSync(password, salt);
 
         //Convert uri in rdf-ext namedNode
-        let userSubject = rdf.namedNode(this.userSecurityGraph.value + suffix);
+        let userSubject = rdf.namedNode(this.sGraph.value + suffix);
         
         //Create basic roles blank nodes
         let bnRead = rdf.blankNode("read");
@@ -89,7 +92,7 @@ module.exports = class {
           rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email)),
           rdf.quad(userSubject, ns.account('password'), rdf.literal(hash)),
           rdf.quad(userSubject, ns.sioc('has_function'), bnRead),
-          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.userInfoGraph.value + suffix)),
+          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value + suffix)),
           rdf.quad(bnRead, ns.rdf('Type'), ns.sioc('Role')), //TODO: Ajouter role admin
           rdf.quad(bnRead, ns.access('has_permission'), ns.acl('Read')),
           rdf.quad(bnRead, ns.sioc('has_scope'), rdf.blankNode()), //TODO: Remplacer blankNode par namedNode ?
@@ -99,7 +102,7 @@ module.exports = class {
           rdf.quad(bnWrite, ns.sioc('has_scope'), rdf.blankNode()),
         ];
         let userGraph = rdf.graph(user);
-        let dataset = rdf.dataset(userGraph, this.userSecurityGraph);
+        let dataset = rdf.dataset(userGraph, this.sGraph);
         const stream = this.store.import(dataset.toStream());
         return new Promise((resolve, reject) => {
           rdf.waitFor(stream).then((e) => {

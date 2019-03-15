@@ -16,25 +16,22 @@ module.exports = class {
     async login(email, password){
         if (email && password){
             let matchStream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
-            let user = await rdf.dataset().import(matchStream);
+            let match = await rdf.dataset().import(matchStream);
 
-            let id = user.toArray()[0].subject.value;
-
-          // console.log('user', user)
-
-            if (user && user.size != 0){
-                let pwStream = this.store.match(null, ns.account('password'), null, this.sGraph);
-                let findPw = await rdf.dataset().import(pwStream);
+            if (match && match.size != 0){
+                let id = match.toArray()[0].subject.value;
+                let userStream = this.store.match(rdf.namedNode(id), null, null, this.sGraph);
+                let user = await rdf.dataset().import(userStream);
                 let pass = "";
-                findPw.forEach(quad => {
-                    pass = quad.object.value;
-                })
-
+                
+                let passMatch = user.match(rdf.namedNode(id), ns.account('password'), null);
+                pass = passMatch.toArray()[0] ? passMatch.toArray()[0].object.value : null;
+                
                 let test = bcrypt.compareSync(password, pass);
                 if (test === true){
                     return new Promise((resolve, reject) => {
-                      // console.log('user :', user)
-                      resolve();
+                      let userId = user.match(rdf.namedNode(id), ns.sioc('id'), null);
+                      resolve(userId.toArray()[0] ? userIdtoArray()[0].object.value : null);
                     })
                 } else {
                   return {error:'Bad request', error_status:400, error_description:'Incorrect Password'}

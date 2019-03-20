@@ -1,7 +1,7 @@
 let request = require("supertest")
 let expect = require('chai').expect;
-let tests = require('../tests');
-require('./userApi');
+let tests = require('../testUtils');
+require('./user.test');
 
 
 describe('Resource API', () => {

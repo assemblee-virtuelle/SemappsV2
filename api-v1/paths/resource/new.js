@@ -4,9 +4,9 @@ module.exports = function(resourceService) {
     };
     
     async function POST(req, res, next) {
-      const resource = await resourceService.create(req.headers, req.query);
+      const resource = await resourceService.create(req.headers, req.body);
       if (resource.error){
-        res.status(user.error_status).send(user.error_description);
+        res.status(resource.error_status).send(resource.error_description);
       }
       res.status(200).send(resource);
     }

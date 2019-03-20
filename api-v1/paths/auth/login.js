@@ -7,7 +7,7 @@ module.exports = function(authService) {
     async function POST(req, res, next) {
   
       if(req.params){
-        let {email, password} = req.body;
+        let {email, password} = req.params;
         let ret = await authService.login(email, password);
         if (ret && ret.error){
         res.status(ret.error_status).send(ret.error_description);

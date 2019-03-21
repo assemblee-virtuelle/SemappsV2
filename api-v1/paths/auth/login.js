@@ -8,7 +8,7 @@ module.exports = function(authService) {
       let {email, password} = req.body;
       let ret = await authService.login(email, password);
       if (ret && ret.error){
-        res.status(ret.error_status).send(ret.error_description);
+        res.status(ret.error_status).json(ret);
       }
       res.status(200).json({id:ret});  
     }

@@ -37,6 +37,8 @@ module.exports = class {
         } else {
           return {error:'Bad request', error_status:400, error_description:'No user'}
         }
+      } else {
+        return {error:'Bad request', error_status:400, error_description:'No info provided'}
       }
     }
 
@@ -50,7 +52,7 @@ module.exports = class {
       let response = "";
 
       //Check if email is taken
-        
+      
       let stream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
 
       let matches = await rdf.dataset().import(stream);
@@ -87,11 +89,11 @@ module.exports = class {
           rdf.quad(userSubject, ns.sioc('has_function'), bnRead),
           rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value + suffix)),
           rdf.quad(bnRead, ns.rdf('Type'), ns.sioc('Role')), //TODO: Ajouter role admin
-          rdf.quad(bnRead, ns.access('has_permission'), ns.acl('Read')),
+          rdf.quad(bnRead, ns.access('has_permission'), rdf.namedNode('http://virtual-assembly.org/Read')),
           rdf.quad(bnRead, ns.sioc('has_scope'), rdf.blankNode()), //TODO: Remplacer blankNode par namedNode ?
           rdf.quad(userSubject, ns.sioc('has_function'), bnWrite),
           rdf.quad(bnWrite, ns.rdf('Type'), ns.sioc('Role')),
-          rdf.quad(bnWrite, ns.access('has_permission'), ns.acl('Write')),
+          rdf.quad(bnWrite, ns.access('has_permission'), rdf.namedNode('http://virtual-assembly.org/Write')),
           rdf.quad(bnWrite, ns.sioc('has_scope'), rdf.blankNode()),
         ];
         let userGraph = rdf.graph(user);

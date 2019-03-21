@@ -7,7 +7,7 @@ module.exports = function(authService) {
       let ret = await authService.createUser(req.body);
 
       if (ret && ret.error){
-        res.status(ret.error_status).send(ret.error_description);
+        res.status(ret.error_status).json(ret);
       } else {
         res.status(201).json(ret);
       }

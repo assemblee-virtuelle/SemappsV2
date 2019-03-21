@@ -5,16 +5,12 @@ module.exports = function(authService) {
     };
   
     async function POST(req, res, next) {
-  
-      if(req.params){
-        let {email, password} = req.params;
-        let ret = await authService.login(email, password);
-        if (ret && ret.error){
+      let {email, password} = req.body;
+      let ret = await authService.login(email, password);
+      if (ret && ret.error){
         res.status(ret.error_status).send(ret.error_description);
-        }
-        res.status(200).send(ret);
       }
-  
+      res.status(200).json({id:ret});  
     }
     
     // NOTE: We could also use a YAML string here.

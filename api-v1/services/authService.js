@@ -6,40 +6,38 @@ const saltRounds = 10;
 
 module.exports = class {
     constructor(client){
-        //TODO: get graph name from config
-        this.uGraph = client.graph('User');
-        this.store = client.store;
-        this.sGraph = client.securityGraph();
-        this.client = client;
+      //TODO: get graph name from config
+      this.uGraph = client.graph('User');
+      this.store = client.store;
+      this.sGraph = client.securityGraph();
+      this.client = client;
     }
 
     async login(email, password){
-        if (email && password){
-            let matchStream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
-            let match = await rdf.dataset().import(matchStream);
+      if (email && password){
+        let matchStream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
+        let match = await rdf.dataset().import(matchStream);
 
-            if (match && match.size != 0){
-                let id = match.toArray()[0].subject.value;
-                let userStream = this.store.match(rdf.namedNode(id), null, null, this.sGraph);
-                let user = await rdf.dataset().import(userStream);
-                let pass = "";
-                
-                let passMatch = user.match(rdf.namedNode(id), ns.account('password'), null);
-                pass = passMatch.toArray()[0] ? passMatch.toArray()[0].object.value : null;
-                
-                let test = bcrypt.compareSync(password, pass);
-                if (test === true){
-                    return new Promise((resolve, reject) => {
-                      let userId = user.match(rdf.namedNode(id), ns.sioc('id'), null);
-                      resolve(userId.toArray()[0] ? userIdtoArray()[0].object.value : null);
-                    })
-                } else {
-                  return {error:'Bad request', error_status:400, error_description:'Incorrect Password'}
-                }
+        if (match && match.size != 0){
+            let id = match.toArray()[0].subject.value;
+            let userStream = this.store.match(rdf.namedNode(id), null, null, this.sGraph);
+            let user = await rdf.dataset().import(userStream);
+            let pass = "";
+            
+            let passMatch = user.match(rdf.namedNode(id), ns.account('password'), null);
+            pass = passMatch.toArray()[0] ? passMatch.toArray()[0].object.value : null;
+            
+            let test = bcrypt.compareSync(password, pass);
+            if (test === true){
+              let userId = user.match(rdf.namedNode(id), ns.sioc('id'), null);
+              return Promise.resolve(userId.toArray()[0] ? userId.toArray()[0].object.value : null);
             } else {
-              return {error:'Bad request', error_status:400, error_description:'No user'}
+              return {error:'Bad request', error_status:400, error_description:'Incorrect Password'}
             }
+        } else {
+          return {error:'Bad request', error_status:400, error_description:'No user'}
         }
+      }
     }
 
       
@@ -66,8 +64,6 @@ module.exports = class {
         let current_date = (new Date()).valueOf().toString();
         let id = crypto.randomBytes(5).toString('hex') + current_date;
         let suffix = this.client.userSuffix + id;
-
-        console.log('suffix', suffix)
 
         //Hash Password
         let salt = bcrypt.genSaltSync(saltRounds);

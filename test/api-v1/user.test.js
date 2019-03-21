@@ -61,12 +61,11 @@ describe('API', () => {
     })
 
     describe('User API', () => {
-
-        user = {
-            username:"samy",
-            email:"samy@samy.fr",
-            password:'test'
-        } //TODO: seed the user
+        let _user = {
+            email:user.email,
+            username:user.username,
+            password:user.password,
+        }
 
         let id = "";
 
@@ -98,7 +97,9 @@ describe('API', () => {
                 password:user.password,
                 email:user.email
             })
-            .expect(200, (err, res) => {
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .end(err => {
                 if (err) { return done(err);}
                 done();
             })

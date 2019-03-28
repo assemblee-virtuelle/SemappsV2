@@ -1,17 +1,24 @@
 const bcrypt = require('bcrypt');
+const Security = require('./securityService');
 const rdf = require('rdf-ext');
 const Serializer = require('@rdfjs/serializer-jsonld');
 const ns = require('../utils/namespaces.js');
-
+const Resource = require('./resourceService');
 const serializer = new Serializer();
 
 
 module.exports = class {
   constructor(client){
     //Initialize sparql client
+    this.uGraph = client.graph('User');
+
     this.store = client.store;    
     this.sGraph = client.securityGraph();
     this.client = client;
+    this.userPerms = new Security(this.client);
+
+    this.resource = new Resource(this.client);
+
   }
 
   //TODO: Supprimer ?
@@ -57,30 +64,35 @@ module.exports = class {
     })
   }
 
-  async createUserInfo(userInfo){
+  async create(req){
+    let {headers, body} = req;
+    let userId = "";
+    let resource = body;
+    let type = this.uGraph;
 
-    //TODO:
-    //First parse ontology in semapps front or in back with Simon's tech
-    //Then compare form info with parsed ontology object for validation
-    //Send the json ld if in front, if in back send the form and convert it to json ld
-    //Then fill userInfo into a dataset and import it into the triple store
 
-    let user = {
-      "@context": {
-        "name": "http://xmlns.com/foaf/0.1/name",
-        "homepage": {
-          "@id": "http://xmlns.com/foaf/0.1/workplaceHomepage",
-          "@type": "@id"
-        },
-        "Person": "http://xmlns.com/foaf/0.1/Person"
-      },
-      "@id": "http://me.example.com",
-      "@type": "Person",
-      "name": "John Smith",
-      "homepage": "http://www.example.com/"
+    if (headers.authorization) {
+      userId = headers.authorization.replace('Bearer ', '');
+    } else {
+        return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
     }
 
-    let userInfoDataset = rdf.dataset().import(user.toStream());
+    let accorded = await this.userPerms.hasTypePermission(userId, type, 'Create');
+    if (accorded == true){
+      let resourceDefault = await _jsonLDToDataset(resource)
+      let current_date = Date.now();
+      //Generate ID
+      let id = crypto.randomBytes(3).toString('hex') + current_date;
+      let subject = graph.value + '/' + id
+      //Remaps the subject to semapps subject (?)
+      let resourceIdentified = resourceDefault.map(q => {
+          return rdf.quad(rdf.namedNode(subject), q.predicate, q.object, graph)
+      })
+      console.log('resourceIdentified :', resourceIdentified)
+
+    }
+    
+
   }
   
   async editUser(userInfo){

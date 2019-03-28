@@ -133,6 +133,12 @@ describe('API', () => {
             })
         })
 
+        // it('Creates the userInfo', done => {
+        //     app.post('/v1/user/new')
+        //     .set('Authorization', `Bearer ${id}`)
+        //     .set('Accept', /application\/json/)
+        //     .send()
+        // })
 
         it('Return a single User', done => {
             app.get(`/v1/user/${id}`)
@@ -142,6 +148,8 @@ describe('API', () => {
                 done();
             })
         })
+
+
 
         //Do that in last
         // it('Deletes an user', done => {

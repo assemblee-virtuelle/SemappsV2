@@ -34,17 +34,18 @@ describe('Resource API', () => {
         .expect(200, (err, res) => {
             resourceUri = res.body.uri;
             if (err) { return done(err); }
-        })
-
-        app.post('/v1/resource/new')
-        .set('Accept', /application\/json/)
-        .set('Authorization', `Bearer ${id}`)
-        .send(requestData2)
-        .expect(200, (err, res) => {
-            resourceUri = res.body.uri;
-            if (err) { return done(err); }
             done();
         })
+
+        // app.post('/v1/resource/new')
+        // .set('Accept', /application\/json/)
+        // .set('Authorization', `Bearer ${id}`)
+        // .send(requestData2)
+        // .expect(200, (err, res) => {
+        //     resourceUri = res.body.uri;
+        //     if (err) { return done(err); }
+        //     done();
+        // })
     })
 
     it('Show a list of resources', done => {

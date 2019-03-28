@@ -1,22 +1,20 @@
 const Security = require('./securityService');
-const JSONLDParser = require('@rdfjs/parser-jsonld');
-const Readable = require('stream').Readable
-const Serializer = require('@rdfjs/serializer-jsonld');
 const rdf = require('rdf-ext');
+const Serializer = require('@rdfjs/serializer-jsonld');
+
 const crypto = require('crypto');
 const log = require('debug')('semapps:resource')
-const ns = require('../utils/namespaces')
+const _jsonLDToDataset = require('../utils/jsontodataset');
 
 const serializer = new Serializer();
-const parserJsonld = new JSONLDParser();
 
 
 module.exports = class {
-    constructor(store){
+    constructor(client){
         // //Initialize sparql client
-        this.store = store.store;    
-        this.sGraph = store.securityGraph();
-        this.client = store;
+        this.store = client.store;    
+        this.sGraph = client.securityGraph();
+        this.client = client;
         this.userPerms = new Security(this.client);
 
     }
@@ -38,7 +36,7 @@ module.exports = class {
         //TODO: Verify user ID (token)
         let accorded = await this.userPerms.hasTypePermission(userId, type, 'Create');
         if (accorded == true){
-            let resourceDefault = await this._jsonLDToDataset(resource)
+            let resourceDefault = await _jsonLDToDataset(resource)
             let current_date = Date.now();
             //Generate ID
             let id = crypto.randomBytes(3).toString('hex') + current_date;
@@ -132,18 +130,6 @@ module.exports = class {
             });
         }
         return {error:'Forbidden', error_status:403, error_description:'Permission denied'}
-    }
-
-    async _jsonLDToDataset(jsonld){
-        const input = new Readable({
-            read: () => {
-                input.push(JSON.stringify(jsonld))
-                input.push(null)
-            }
-        })
-        const output = parserJsonld.import(input)
-        let resourceDefault = await rdf.dataset().import(output)
-        return resourceDefault;
     }
     
 }

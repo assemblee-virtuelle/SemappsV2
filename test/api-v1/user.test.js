@@ -97,13 +97,42 @@ describe('API', () => {
                 password:user.password,
                 email:user.email
             })
-            .expect(200)
+            .expect('Content-Type', /application\/json/)
+            .expect(200, (err, res) => {
+                
+                if (err) { return done(err);}
+                done();
+            })
+        })
+
+        it('Wrong password', done => {
+            app.post('/v1/auth/login')
+            .send({
+                password:user.password + "erer",
+                email:user.email
+            })
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+            .end((err, res) => {
+                if (err) { return done(err);}
+                done();
+            })
+        })
+
+        it('Nothing given on login', done => {
+            app.post('/v1/auth/login')
+            .send({
+                password:'',
+                email:''
+            })
+            .expect(400)
             .expect('Content-Type', /application\/json/)
             .end(err => {
                 if (err) { return done(err);}
                 done();
             })
         })
+
 
         it('Return a single User', done => {
             app.get(`/v1/user/${id}`)
@@ -114,20 +143,21 @@ describe('API', () => {
             })
         })
 
-        it('Deletes an user', done => {
-            let toDelete = {
-                email:user.email,
-                password:user.password,
-            }
-            app.post('/v1/user/delete')
-            .set('Accept', /application\/json/)
-            .set('Authorization', `Basic ${id}`)
-            .send(toDelete)
-            .expect(200, (err, res) => {
-                if (err) { return done(err); }
-                done();
-            })
-        })
+        //Do that in last
+        // it('Deletes an user', done => {
+        //     let toDelete = {
+        //         email:user.email,
+        //         password:user.password,
+        //     }
+        //     app.post('/v1/user/delete')
+        //     .set('Accept', /application\/json/)
+        //     .set('Authorization', `Basic ${id}`)
+        //     .send(toDelete)
+        //     .expect(200, (err, res) => {
+        //         if (err) { return done(err); }
+        //         done();
+        //     })
+        // })
     })
 
     after((done) => {

@@ -4,7 +4,7 @@ module.exports = function(resourceService) {
     };
     
     async function POST(req, res, next) {
-      const resource = await resourceService.create(req);
+      const resource = await resourceService.edit(req.headers, req.body);
       if (resource && resource.error){
         res.status(resource.error_status).json(resource);
       }
@@ -13,8 +13,8 @@ module.exports = function(resourceService) {
     
     // NOTE: We could also use a YAML string here.
     POST.apiDoc = {
-      summary: 'Create a new resource',
-      operationId: 'create',
+      summary: 'Edit a resource',
+      operationId: 'edit',
       tags:["resource"],
       parameters: [
         {
@@ -32,18 +32,15 @@ module.exports = function(resourceService) {
             schema:{
               type:'object',
               properties:{
-                resourceType: {type:'string'},
-                resourceData: {
-                  type:'array',
-                  items:{type:'object'}
-                }
+                resourceUri: {type:'string'},
+                resourceData: {type:'object'}
               }
             }
         }
       ],
       responses: {
         200: {
-          description: 'User matching name'
+          description: 'Resource in jsonLD'
         },
         400:{
           description: 'Invalid info'

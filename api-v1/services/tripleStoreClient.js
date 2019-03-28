@@ -32,7 +32,8 @@ module.exports = class {
 
         //TODO: Put this in config
         this.userSecurity = "UserSecurity";
-        this.userSuffix = "#user_";
+        this.userPermission = "UserPermission";
+        this.userSuffix = "/user_";
 
         this.store = new SparqlStore(sparqlUrl, options);
 
@@ -56,6 +57,10 @@ module.exports = class {
 
     securityGraph(){
         return rdf.namedNode(this.graphEndpoint + '/' + this.userSecurity);
+    }
+
+    permissionGraph(){
+        return rdf.namedNode(this.graphEndpoint + '/' + this.userPermission);
     }
 
 }

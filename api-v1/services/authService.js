@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const Security = require('./securityService');
 const rdf = require('rdf-ext');
 const ns = require('../utils/namespaces.js');
 const saltRounds = 10;
@@ -9,8 +10,13 @@ module.exports = class {
       //TODO: get graph name from config
       this.uGraph = client.graph('User');
       this.store = client.store;
+      this.pGraph = client.permissionGraph();
       this.sGraph = client.securityGraph();
       this.client = client;
+      this.permissionsAtCreate = ['Create', 'Write', 'Read', 'Delete']; //TODO: Change this for object key value in config
+      this.typeList = ['Project', 'Document', 'Event', 'Good', 'Service', 'Person', 'Organization', 'Places'];
+      this.userPerms = new Security(this.client);
+
     }
 
     async login(email, password){
@@ -63,8 +69,8 @@ module.exports = class {
         let password = userInfo.password;
 
         //Generate random ID
-        let current_date = (new Date()).valueOf().toString();
-        let id = crypto.randomBytes(5).toString('hex') + current_date;
+        let current_date = Date.now();
+        let id = crypto.randomBytes(3).toString('hex') + current_date;
         let suffix = this.client.userSuffix + id;
 
         //Hash Password
@@ -81,24 +87,22 @@ module.exports = class {
         let generalAccess; //TODO: create general access roles e.g ADMIN, MODERATOR, etc
 
         let user = [
-          rdf.quad(userSubject, ns.rdf('Type'), ns.sioc('UserAccount')),
-          rdf.quad(userSubject, ns.sioc('id'), rdf.literal(id)),
-          rdf.quad(userSubject, ns.foaf('accountName'), rdf.literal(username)),
-          rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email)),
-          rdf.quad(userSubject, ns.account('password'), rdf.literal(hash)),
-          rdf.quad(userSubject, ns.sioc('has_function'), bnRead),
-          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value + suffix)),
-          rdf.quad(bnRead, ns.rdf('Type'), ns.sioc('Role')), //TODO: Ajouter role admin
-          rdf.quad(bnRead, ns.access('has_permission'), rdf.namedNode('http://virtual-assembly.org/Read')),
-          rdf.quad(bnRead, ns.sioc('has_scope'), rdf.blankNode()), //TODO: Remplacer blankNode par namedNode ?
-          rdf.quad(userSubject, ns.sioc('has_function'), bnWrite),
-          rdf.quad(bnWrite, ns.rdf('Type'), ns.sioc('Role')),
-          rdf.quad(bnWrite, ns.access('has_permission'), rdf.namedNode('http://virtual-assembly.org/Write')),
-          rdf.quad(bnWrite, ns.sioc('has_scope'), rdf.blankNode()),
+          rdf.quad(userSubject, ns.rdf('Type'), ns.sioc('UserAccount'), this.sGraph),
+          rdf.quad(userSubject, ns.sioc('id'), rdf.literal(id), this.sGraph),
+          rdf.quad(userSubject, ns.foaf('accountName'), rdf.literal(username), this.sGraph),
+          rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email), this.sGraph),
+          rdf.quad(userSubject, ns.account('password'), rdf.literal(hash), this.sGraph),
+          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value + suffix), this.sGraph)
         ];
+
+        //Add default permissions (read, write, create and delete on all graph for the moment)
+        let permQuad = this.userPerms.createDefaultPermissions(userSubject, this.typeList, this.permissionsAtCreate)
+        let permDataset = rdf.dataset(permQuad)
+
         let userGraph = rdf.graph(user);
         let dataset = rdf.dataset(userGraph, this.sGraph);
-        const stream = this.store.import(dataset.toStream());
+        let ret = dataset.merge(permDataset);
+        const stream = this.store.import(ret.toStream());
         return new Promise((resolve, reject) => {
           rdf.waitFor(stream).then((e) => {
             response = {

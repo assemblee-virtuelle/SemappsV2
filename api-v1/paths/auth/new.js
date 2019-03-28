@@ -5,7 +5,6 @@ module.exports = function(authService) {
     
     async function POST(req, res, next) {
       let ret = await authService.createUser(req.body);
-
       if (ret && ret.error){
         res.status(ret.error_status).json(ret);
       } else {

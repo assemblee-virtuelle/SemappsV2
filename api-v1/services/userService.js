@@ -49,8 +49,7 @@ module.exports = class {
     let user = await rdf.dataset().import(stream);
 
     //TODO: Get user info 
-    
-    return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
       let output = serializer.import(user.toStream());
       output.on('data', jsonld => {
         resolve(jsonld);

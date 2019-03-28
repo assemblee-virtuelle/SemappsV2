@@ -48,7 +48,7 @@ module.exports = class {
             let resourceUri = req.protocol + '://' + req.get('host') + req.originalUrl;
             let uri = resourceUri.replace('new', `${body.resourceType}/${id}`)
             //Add permissions
-            let perm = this.userPerms.createNewResource(userId, subject, type);
+            let perm = this.userPerms.createNewPermResource(userId, subject, type);
             let output = serializer.import(resourceIdentified.toStream());
             try {
                 //Creates the resource

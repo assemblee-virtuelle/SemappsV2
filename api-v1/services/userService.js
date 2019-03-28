@@ -5,6 +5,10 @@ const Serializer = require('@rdfjs/serializer-jsonld');
 const ns = require('../utils/namespaces.js');
 const Resource = require('./resourceService');
 const serializer = new Serializer();
+const crypto = require('crypto');
+
+const jsonLDToDataset = require('../utils/jsontodataset')
+const log = require('debug')('semapps:user');
 
 
 module.exports = class {
@@ -50,13 +54,15 @@ module.exports = class {
   
   async userById(id){
     //FETCH USER INFO FROM ID
+    let type = 'User';
+    let graph = this.client.graph(type);
 
-    const stream = this.store.match(null, ns.sioc('id'), rdf.literal(id), this.sGraph);
+    let subject = graph.value + '/' + id;
 
+    const stream = this.store.match(rdf.namedNode(subject), null, null, this.uGraph);
     let user = await rdf.dataset().import(stream);
 
-    //TODO: Get user info 
-        return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       let output = serializer.import(user.toStream());
       output.on('data', jsonld => {
         resolve(jsonld);
@@ -64,33 +70,50 @@ module.exports = class {
     })
   }
 
+  //TODO: import mail address and stuff wanted from UserSecurity graph
   async create(req){
     let {headers, body} = req;
     let userId = "";
     let resource = body;
-    let type = this.uGraph;
-
+    let type = 'User';
 
     if (headers.authorization) {
       userId = headers.authorization.replace('Bearer ', '');
     } else {
         return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
     }
-
+    //Generate ID
+    
+    let graph = this.client.graph(type);
     let accorded = await this.userPerms.hasTypePermission(userId, type, 'Create');
+    let subject = graph.value + '/' + userId;
+    
     if (accorded == true){
-      let resourceDefault = await _jsonLDToDataset(resource)
-      let current_date = Date.now();
-      //Generate ID
-      let id = crypto.randomBytes(3).toString('hex') + current_date;
-      let subject = graph.value + '/' + id
+      let resourceDefault = await jsonLDToDataset(resource);
       //Remaps the subject to semapps subject (?)
       let resourceIdentified = resourceDefault.map(q => {
           return rdf.quad(rdf.namedNode(subject), q.predicate, q.object, graph)
       })
-      console.log('resourceIdentified :', resourceIdentified)
-
+      let userUri = this.sGraph + this.client.userSuffix + userId;
+      
+      resourceIdentified.add(rdf.quad(rdf.namedNode(subject), ns.foaf('account'), rdf.namedNode(userUri), this.uGraph));
+      let resourceUri = req.protocol + '://' + req.get('host') + req.originalUrl;
+      let uri = resourceUri.replace('new', `${userId}`)
+      let perm = this.userPerms.createNewPermResource(userId, subject, type);
+      let output = serializer.import(resourceIdentified.toStream());
+      let stream = this.store.import(resourceIdentified.toStream());
+      return new Promise((resolve, reject) => {
+        stream.on('end', ()=>{
+          perm.then(() => {
+            output.on('data', jsonld => {
+              log(`New resource created : ${uri}`);
+              resolve({uri:uri, resource:jsonld});
+            })
+          })
+        })
+      });
     }
+    return {error:'Forbidden', error_status:403, error_description:'Permission denied'}
     
 
   }

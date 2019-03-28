@@ -14,7 +14,7 @@ module.exports = class {
       this.sGraph = client.securityGraph();
       this.client = client;
       this.permissionsAtCreate = ['Create', 'Write', 'Read', 'Delete']; //TODO: Change this for object key value in config
-      this.typeList = ['Project', 'Document', 'Event', 'Good', 'Service', 'Person', 'Organization', 'Places'];
+      this.typeList = ['Project', 'Document', 'Event', 'Good', 'Service', 'Person', 'Organization', 'Places', 'User'];
       this.userPerms = new Security(this.client);
 
     }
@@ -92,7 +92,7 @@ module.exports = class {
           rdf.quad(userSubject, ns.foaf('accountName'), rdf.literal(username), this.sGraph),
           rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email), this.sGraph),
           rdf.quad(userSubject, ns.account('password'), rdf.literal(hash), this.sGraph),
-          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value + suffix), this.sGraph)
+          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value), this.sGraph)
         ];
 
         //Add default permissions (read, write, create and delete on all graph for the moment)

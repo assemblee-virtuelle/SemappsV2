@@ -9,8 +9,9 @@ module.exports = function(authService) {
       let ret = await authService.login(email, password);
       if (ret && ret.error){
         res.status(ret.error_status).json(ret);
+      } else {
+        res.status(200).json({id:ret});  
       }
-      res.status(200).json({id:ret});  
     }
     
     // NOTE: We could also use a YAML string here.

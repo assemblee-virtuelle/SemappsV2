@@ -8,9 +8,9 @@ module.exports = function(userService) {
     const users = await userService.userByFilter(req.query.filter);
     if (users.error){
       res.status(user.error_status).send(user.error_description);
+    } else {
+      res.status(200).send(users);
     }
-
-    res.status(200).send(users);
   }
   
   // NOTE: We could also use a YAML string here.

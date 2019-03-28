@@ -10,6 +10,7 @@ module.exports = class {
         this.client = client;
         this.permissionsAtCreate = ['Read', 'Write', 'Create', 'Delete']; //TODO: Change this for object key value in config
         this.pGraph = client.permissionGraph();
+        this.securityUri = "";
     }
 
     async userExist(id){
@@ -79,7 +80,7 @@ module.exports = class {
         return Promise.resolve(false);
     }
 
-    async createNewResource(userId, resource, type){
+    async createNewPermResource(userId, resource, type){
         //Check if userId has create control over the type
         //If he has control, do not create permission but still create a link to creator_of
         let editor = true;

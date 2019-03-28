@@ -1,18 +1,19 @@
 module.exports = function(userService) {
     let operations = {
-        POST
+        DELETE
     };
 
-    async function POST(req, res, next) {
+    async function DELETE(req, res, next) {
         let del = await userService.deleteUser(req.headers, req.body);
         if (del && del.error){
             res.status(del.error_status).send(del.error_description);
+        } else {
+            res.status(200).json(del);
         }
-        res.sendStatus(200);
     }
 
     // NOTE: We could also use a YAML string here.
-    POST.apiDoc = {
+    DELETE.apiDoc = {
         summary: 'Deletes a Semapps User.',
         operationId: 'deleteUser',
         tags:["user"],

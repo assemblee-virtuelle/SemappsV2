@@ -133,12 +133,19 @@ describe('API', () => {
             })
         })
 
-        // it('Creates the userInfo', done => {
-        //     app.post('/v1/user/new')
-        //     .set('Authorization', `Bearer ${id}`)
-        //     .set('Accept', /application\/json/)
-        //     .send()
-        // })
+        it('Creates the userInfo', done => {
+            let profile = tests.profile;
+            app.post('/v1/user/new')
+            .set('Authorization', `Bearer ${id}`)
+            .set('Accept', /application\/json/)
+            .send(profile)
+            .expect('Content-Type', /application\/json/)
+            .expect(200)
+            .end((err,res) => {
+                if (err) {return done(err);}
+                done();
+            })
+        })
 
         it('Return a single User', done => {
             app.get(`/v1/user/${id}`)

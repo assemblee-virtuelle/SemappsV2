@@ -7,8 +7,9 @@ module.exports = function(resourceService) {
       const resource = await resourceService.edit(req.headers, req.body);
       if (resource && resource.error){
         res.status(resource.error_status).json(resource);
+      } else {
+        res.status(200).json(resource);
       }
-      res.status(200).json(resource);
     }
     
     // NOTE: We could also use a YAML string here.

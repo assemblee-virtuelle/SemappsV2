@@ -7,8 +7,9 @@ module.exports = function(userService) {
       const user = await userService.create(req);
       if (user && user.error){
         res.status(user.error_status).json(user);
+      } else {
+        res.status(200).json(user);
       }
-      res.status(200).json(user);
     }
     
     // NOTE: We could also use a YAML string here.
@@ -28,16 +29,10 @@ module.exports = function(userService) {
             in:'body',
             name:'resource',
             required:true,
-            description:'Resource to add in jsonLD',
+            description:'UserInfo to add in jsonLD',
             schema:{
-              type:'object',
-              properties:{
-                resourceType: {type:'string'},
-                resourceData: {
-                  type:'array',
-                  items:{type:'object'}
-                }
-              }
+              type:'array',
+              items:{type:'object'}
             }
         }
       ],

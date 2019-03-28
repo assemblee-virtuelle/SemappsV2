@@ -19,8 +19,9 @@ module.exports = function(userService) {
   
       if (ret && ret.error){
         res.status(ret.error_status).send(ret.error_description);
+      } else {
+        res.status(200).send(ret);
       }
-      res.status(200).send(ret);
     }
 
   }

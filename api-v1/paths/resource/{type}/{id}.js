@@ -50,8 +50,9 @@ module.exports = function(resourceService) {
         let ret = await resourceService.getById(req.headers, req.params);
         if (ret && ret.error){
           res.status(ret.error_status).json(ret);
+        } else {
+          res.status(200).json(ret);
         }
-        res.status(200).json(ret);
       }
   
     }

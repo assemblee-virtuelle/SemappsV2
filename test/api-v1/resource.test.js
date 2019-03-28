@@ -17,10 +17,14 @@ describe('Resource API', () => {
     })
 
     it('Creates a new resource', done => {
-        let {type, payload} = tests.resource;
+        let {type, payload, resource2} = tests.resource;
         let requestData = {
             resourceType:type,
             resourceData:payload
+        }
+        let requestData2 = {
+            resourceType:type,
+            resourceData:resource2
         }
 
         app.post('/v1/resource/new')
@@ -29,7 +33,15 @@ describe('Resource API', () => {
         .send(requestData)
         .expect(200, (err, res) => {
             resourceUri = res.body.uri;
-            console.log('resourceUri :', resourceUri)
+            if (err) { return done(err); }
+        })
+
+        app.post('/v1/resource/new')
+        .set('Accept', /application\/json/)
+        .set('Authorization', `Bearer ${id}`)
+        .send(requestData2)
+        .expect(200, (err, res) => {
+            resourceUri = res.body.uri;
             if (err) { return done(err); }
             done();
         })

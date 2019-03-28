@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "NODE_ENV=test mocha --exit ./test/api-v1 --recursive "
+    "test": "NODE_ENV=test DEBUG=semapps* mocha --exit ./test/api-v1 --recursive "
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +22,7 @@
     "rdf-ext": "^1.2.1",
     "rdf-store-sparql": "^2.0.0",
     "sparql-http-client": "^1.0.3",
+    "debug": "^4.1.1",
     "swagger-ui-express": "^4.0.2"
   },
   "devDependencies": {

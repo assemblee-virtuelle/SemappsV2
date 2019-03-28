@@ -96,7 +96,7 @@ module.exports = class {
         ];
 
         //Add default permissions (read, write, create and delete on all graph for the moment)
-        let permQuad = this.userPerms.createDefaultPermissions(userSubject, this.typeList, this.permissionsAtCreate)
+        let permQuad = this.userPerms.createDefaultPermissions(userSubject, id, this.typeList, this.permissionsAtCreate)
         let permDataset = rdf.dataset(permQuad)
 
         let userGraph = rdf.graph(user);

@@ -149,9 +149,25 @@ describe('API', () => {
 
         it('Return a single User', done => {
             app.get(`/v1/user/${id}`)
+            .set('Authorization', `Bearer ${id}`)
+            .set('Accept', /application\/json/)
             .expect('Content-Type', /json/)
             .expect(200, function(err, res) {
                 if(err) { return done(err); }
+                done();
+            })
+        })
+
+        it('Edit an user', done => {
+            let profile = tests.profile2;
+            app.put(`/v1/user/${id}`)
+            .set('Authorization', `Bearer ${id}`)
+            .set('Accept', /application\/json/)
+            .send(profile)
+            .expect('Content-Type', /json/)
+            .expect(200)
+            .end((err, res) => {
+                if (err) {return done(err);}
                 done();
             })
         })

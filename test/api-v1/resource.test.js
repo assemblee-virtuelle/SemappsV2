@@ -8,7 +8,10 @@ describe('Resource API', () => {
     let app = tests.app;
     let id = "";
     let resourceUri = "";
+    let resourceId = "";
     let user = {};
+    let {type, payload, resource2, resource3} = tests.resource;
+
 
     before(done => {
         user = tests.user;
@@ -17,22 +20,14 @@ describe('Resource API', () => {
     })
 
     it('Creates a new resource', done => {
-        let {type, payload, resource2} = tests.resource;
-        let requestData = {
-            resourceType:type,
-            resourceData:payload
-        }
-        let requestData2 = {
-            resourceType:type,
-            resourceData:resource2
-        }
 
-        app.post('/v1/resource/new')
+        app.post(`/v1/resource/${type}/new`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
-        .send(requestData)
+        .send(payload)
         .expect(200, (err, res) => {
             resourceUri = res.body.uri;
+            resourceId = res.body.id;
             if (err) { return done(err); }
             done();
         })
@@ -50,13 +45,13 @@ describe('Resource API', () => {
 
     it('Show a list of resources', done => {
         //ResourceUri = http://127.0.0.1:3001/v1/resource/{type}/{id}
-        let type = tests.resource.type;
         app
         .get(`/v1/resource/${type}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
         .expect('Content-Type', /application\/json/)
-        .expect(200, (err, res) => {
+        .expect(200)
+        .end((err, res) => {
             if(err) {return done(err);}
             done();
         })
@@ -64,8 +59,8 @@ describe('Resource API', () => {
 
     it('Show a resource', done => {
         //ResourceUri = http://127.0.0.1:3001/v1/resource/{type}/{id}
-        request(resourceUri)
-        .get('/')
+        app
+        .get(`/v1/resource/${type}/${resourceId}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
         .expect('Content-Type', /application\/json/)
@@ -75,12 +70,34 @@ describe('Resource API', () => {
         })
     })
 
-    // it('Edit a resource', done => {
-    //     done();
-    // })
+    it('Edit a resource', done => {
 
-    // it('Deletes a resource', done => {
-    //     done();
+        app
+        .put(`/v1/resource/${type}/${resourceId}`)
+        .set('Accept', /application\/json/)
+        .set('Authorization', `Bearer ${id}`)
+        .send(resource2)
+        .expect('Content-Type', /application\/json/)
+        .expect(200)
+        .end((err, res) => {
+            if(err){return done(err)};
+            done()
+        })
+    })
+
+    // it('Delete triples of a resource', done => {
+
+    //     app
+    //     .delete(`/v1/resource/${type}/${resourceId}`)
+    //     .set('Accept', /application\/json/)
+    //     .set('Authorization', `Bearer ${id}`)
+    //     .send(resource3)
+    //     .expect('Content-Type', /application\/json/)
+    //     .expect(200)
+    //     .end((err, res) => {
+    //         if(err){return done(err)};
+    //         done()
+    //     })
     // })
 
 

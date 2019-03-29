@@ -13,7 +13,8 @@ module.exports = class {
       this.pGraph = client.permissionGraph();
       this.sGraph = client.securityGraph();
       this.client = client;
-      this.permissionsAtCreate = ['Create', 'Write', 'Read', 'Delete']; //TODO: Change this for object key value in config
+      //DOUBLON
+      this.permissionsAtCreate = ['Create', 'Write', 'Read', 'Delete', 'Edit']; //TODO: Change this for object key value in config
       this.typeList = ['Project', 'Document', 'Event', 'Good', 'Service', 'Person', 'Organization', 'Places', 'User'];
       this.userPerms = new Security(this.client);
 

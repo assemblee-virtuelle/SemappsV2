@@ -14,60 +14,36 @@ const log = require('debug')('semapps:user');
 module.exports = class {
   constructor(client){
     //Initialize sparql client
-    this.uGraph = client.graph('User');
-
+    
     this.store = client.store;    
     this.sGraph = client.securityGraph();
     this.client = client;
     this.userPerms = new Security(this.client);
-
     this.resource = new Resource(this.client);
+    this.type = "User";
+    this.uGraph = client.graph(this.type);
 
-  }
-
-  //TODO: Supprimer ?
-  async userByFilter(filters){
-
-    // let graph = filters.graph;
-    // let username = filters.username;
-    let users;
-    if (!filters){
-      const allUsersStream = this.store.match(null, null, null, this.sGraph)  
-      users = await rdf.dataset().import(allUsersStream);
-
-    } else {
-      let username = filters;
-      //Manage filters
-
-      const userStream = this.store.match(null, null, rdf.literal(username), this.sGraph);
-      users = await rdf.dataset().import(userStream);
-    }
-
-    return new Promise((resolve, reject) => {
-      //convert to JSON LD
-      let output = serializer.import(users.toStream());
-      output.on('data', jsonld => {
-        resolve(jsonld);
-      })
-    })
   }
   
   async userById(id){
     //FETCH USER INFO FROM ID
-    let type = 'User';
-    let graph = this.client.graph(type);
+    let graph = this.client.graph(this.type);
 
     let subject = graph.value + '/' + id;
-
-    const stream = this.store.match(rdf.namedNode(subject), null, null, this.uGraph);
-    let user = await rdf.dataset().import(stream);
-
-    return new Promise((resolve, reject) => {
-      let output = serializer.import(user.toStream());
-      output.on('data', jsonld => {
-        resolve(jsonld);
+    let accorded = await this.userPerms.hasPermission(id, subject, this.type, 'Read')
+    let user = "";
+    if (accorded == true){
+      const stream = this.store.match(rdf.namedNode(subject), null, null, this.uGraph);
+      user = await rdf.dataset().import(stream);
+      
+      return new Promise((resolve, reject) => {
+        let output = serializer.import(user.toStream());
+        output.on('data', jsonld => {
+          resolve(jsonld);
+        })
       })
-    })
+    }
+    return {error:'Unauthorized', error_status:403, error_description:`Unauthorized to access ${subject}`};
   }
 
   //TODO: import mail address and stuff wanted from UserSecurity graph
@@ -82,17 +58,15 @@ module.exports = class {
     } else {
         return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
     }
-    //Generate ID
     
-    let graph = this.client.graph(type);
-    let accorded = await this.userPerms.hasTypePermission(userId, type, 'Create');
-    let subject = graph.value + '/' + userId;
+    let accorded = await this.userPerms.hasTypePermission(userId, this.type, 'Create');
+    let subject = this.uGraph.value + '/' + userId;
     
     if (accorded == true){
       let resourceDefault = await jsonLDToDataset(resource);
       //Remaps the subject to semapps subject (?)
       let resourceIdentified = resourceDefault.map(q => {
-          return rdf.quad(rdf.namedNode(subject), q.predicate, q.object, graph)
+          return rdf.quad(rdf.namedNode(subject), q.predicate, q.object, this.uGraph)
       })
       let userUri = this.sGraph + this.client.userSuffix + userId;
       
@@ -118,12 +92,27 @@ module.exports = class {
 
   }
   
-  async editUser(userInfo){
-    
+  async edit(req){
+    let {headers, body} = req;
+    let userId = "";
+    let resource = body;
+
+    if (headers.authorization) {
+      userId = headers.authorization.replace('Bearer ', '');
+    } else {
+      return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
+    }
+
+    let subject = this.uGraph.value + '/' + userId;
+    let accorded = await this.userPerms.hasPermission(userId, subject, type, 'Edit');
+    if (accorded == true){
+
+      console.log("accorded")
+    }
   }
 
   //Delete an user
-  async deleteUser(headers, userInfo){
+  async delete(headers, userInfo){
 
     let email = userInfo.email;
     let password = userInfo.password;
@@ -161,6 +150,14 @@ module.exports = class {
     } else {
       return {error:"Bad request", error_status:400, error_description:"Incorrect info"}
     }
+  }
+
+  async delete(){
+    return true;
+  }
+
+  async edit(){
+    return true;
   }
 
 }

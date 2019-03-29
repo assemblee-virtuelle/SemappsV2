@@ -4,7 +4,7 @@ const Serializer = require('@rdfjs/serializer-jsonld');
 
 const crypto = require('crypto');
 const log = require('debug')('semapps:resource')
-const _jsonLDToDataset = require('../utils/jsontodataset');
+const jsonLDToDataset = require('../utils/jsontodataset');
 
 const serializer = new Serializer();
 
@@ -20,8 +20,8 @@ module.exports = class {
     }
 
     async create(req){
-        let {headers, body} = req;
-        let type = body.resourceType;
+        let {headers, body, params} = req;
+        let type = params.type;
         let userId = "";
 
         if (headers.authorization) {
@@ -30,13 +30,13 @@ module.exports = class {
             return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
         }
         //TODO: Resource verification and validation
-        let resource = body.resourceData;
+        let resource = body;
         //TODO: Verify if graph exists, if not, see if user can create it 
         let graph = this.client.graph(type);
         //TODO: Verify user ID (token)
         let accorded = await this.userPerms.hasTypePermission(userId, type, 'Create');
         if (accorded == true){
-            let resourceDefault = await _jsonLDToDataset(resource)
+            let resourceDefault = await jsonLDToDataset(resource)
             let current_date = Date.now();
             //Generate ID
             let id = crypto.randomBytes(3).toString('hex') + current_date;
@@ -46,7 +46,7 @@ module.exports = class {
                 return rdf.quad(rdf.namedNode(subject), q.predicate, q.object, graph)
             })
             let resourceUri = req.protocol + '://' + req.get('host') + req.originalUrl;
-            let uri = resourceUri.replace('new', `${body.resourceType}/${id}`)
+            let uri = resourceUri.replace('new', `${id}`)
             //Add permissions
             let perm = this.userPerms.createNewPermResource(userId, subject, type);
             let output = serializer.import(resourceIdentified.toStream());
@@ -60,12 +60,126 @@ module.exports = class {
                 perm.then(() => {
                     output.on('data', jsonld => {
                         log(`New resource created : ${uri}`);
-                        resolve({uri:uri});
+                        resolve({uri:uri, id:id});
                     })
                 })
             });
         }
         return {error:'Forbidden', error_status:403, error_description:'Permission denied'}
+    }
+
+    async edit(req){
+        let {headers, body, params} = req;
+        let {type, id} = params;
+        let userId = "";
+
+        if (headers.authorization) {
+          userId = headers.authorization.replace('Bearer ', '');
+        } else {
+            return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
+        }
+        //TODO: Resource verification and validation
+        let resource = body;
+        //TODO: Verify if graph exists, if not, see if user can create it 
+        let graph = this.client.graph(type);
+        let resourceUri = rdf.namedNode(graph.value + '/' + id);
+
+        //TODO: Verify user ID (token)
+        let accorded = await this.userPerms.hasPermission(userId, resourceUri, type, 'Edit');
+        if (accorded == true){
+            let resourceDefault = await jsonLDToDataset(resource)
+            //Remaps the resourceUri to semapps resourceUri (?)
+            let resourceIdentified = resourceDefault.map(q => {
+                return rdf.quad(rdf.namedNode(resourceUri), q.predicate, q.object, graph)
+            })
+
+            let oldResourceStream = this.store.match(resourceUri, null, null, graph);
+            let oldResource = await rdf.dataset().import(oldResourceStream);
+            
+            let toRemove = oldResource.difference(resourceIdentified);
+            
+
+            let resourcePath = req.protocol + '://' + req.get('host') + req.originalUrl;
+            let uri = resourcePath.replace('new', `${id}`)
+            // let perm = this.userPerms.createNewPermResource(userId, resourceUri, type);
+            let output = serializer.import(resourceIdentified.toStream());
+            try {
+                //Creates the resource
+                this.store.import(resourceIdentified.toStream());
+                //Removes the triples
+                this.store.remove(toRemove.toStream())
+
+            } catch (error) {
+                return {error:'Bad Request', error_status:400, error_description:'Incorrect info'}
+            }
+            return new Promise((resolve, reject) => {
+                // perm.then(() => {
+                    output.on('data', jsonld => {
+                        log(`Edited resource : ${uri}`);
+                        resolve({uri:uri, id:id});
+                    })
+                // })
+            });
+        }
+        return {error:'Forbidden', error_status:403, error_description:'Permission denied'}
+
+    }
+
+    async delete(req){
+        let {headers, body, params} = req;
+        let {type, id} = params;
+        let userId = "";
+
+        if (headers.authorization) {
+          userId = headers.authorization.replace('Bearer ', '');
+        } else {
+            return {error:'Bad request', error_status:400, error_description:'Incorrect ID'}
+        }
+        //TODO: Resource verification and validation
+        let resource = body;
+        //TODO: Verify if graph exists, if not, see if user can create it 
+        let graph = this.client.graph(type);
+        let resourceUri = rdf.namedNode(graph.value + '/' + id);
+
+        //TODO: Verify user ID (token)
+        let accorded = await this.userPerms.hasPermission(userId, resourceUri, type, 'Delete');
+        if (accorded == true){
+            let resourceDefault = await jsonLDToDataset(resource)
+            //Remaps the resourceUri to semapps resourceUri (?)
+            let resourceIdentified = resourceDefault.map(q => {
+                return rdf.quad(rdf.namedNode(resourceUri), q.predicate, q.object, graph)
+            })
+
+            let oldResourceStream = this.store.match(resourceUri, null, null, graph);
+            let oldResource = await rdf.dataset().import(oldResourceStream);
+            
+            let toRemove = oldResource.difference(resourceIdentified);
+            
+            console.log('toRemove :', toRemove)
+            let resourcePath = req.protocol + '://' + req.get('host') + req.originalUrl;
+            let uri = resourcePath.replace('new', `${id}`)
+            // let perm = this.userPerms.createNewPermResource(userId, resourceUri, type);
+            let output = serializer.import(resourceIdentified.toStream());
+            try {
+                //Creates the resource
+                // this.store.import(resourceIdentified.toStream());
+                //Removes the triples
+                // this.store.remove(toRemove.toStream())
+
+            } catch (error) {
+                return {error:'Bad Request', error_status:400, error_description:'Incorrect info'}
+            }
+            return new Promise((resolve, reject) => {
+                // perm.then(() => {
+                    output.on('data', jsonld => {
+                        log(`Edited resource : ${uri}`);
+                        resolve({uri:uri, id:id});
+                    })
+                // })
+            });
+        }
+        return {error:'Forbidden', error_status:403, error_description:'Permission denied'}
+
     }
 
     async getByType(headers, type){

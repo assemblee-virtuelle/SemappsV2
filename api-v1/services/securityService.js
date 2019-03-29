@@ -8,7 +8,7 @@ module.exports = class {
         this.store = client.store;    
         this.sGraph = client.securityGraph();
         this.client = client;
-        this.permissionsAtCreate = ['Read', 'Write', 'Create', 'Delete']; //TODO: Change this for object key value in config
+        this.permissionsAtCreate = ['Read', 'Write', 'Create', 'Delete', 'Edit']; //TODO: Change this for object key value in config
         this.pGraph = client.permissionGraph();
         this.securityUri = "";
     }
@@ -39,7 +39,7 @@ module.exports = class {
             
             let accessQuads = await rdf.dataset().import(accessStream);
             if (accessQuads && accessQuads.length != 0){
-                log(`Access to ${type} Granted !`)
+                log(`${permission} access to ${type} Granted !`)
                 return Promise.resolve(accessQuads);
             }
         }
@@ -52,11 +52,11 @@ module.exports = class {
             let accessStream =  this.store.match(rdf.namedNode(constructed), ns.sioc('has_scope'), this.client.graph(type), this.pGraph)
             let accessQuads = await rdf.dataset().import(accessStream);
             if (accessQuads && accessQuads.length != 0){
-                log(`Access to ${type} Granted !`)
+                log(`${permission} access to ${type} Granted !`)
                 return Promise.resolve(true)
             }
         }
-        log(`Access to ${type} denied`);
+        log(`${permission} access to ${type} denied`);
         return Promise.resolve(false);
     }
 
@@ -68,15 +68,15 @@ module.exports = class {
                 let accessStream = this.store.match(rdf.namedNode(constructed), ns.sioc('has_scope'), rdf.namedNode(resource), this.pGraph)
                 let accessQuads = await rdf.dataset().import(accessStream);
                 if (accessQuads && accessQuads.length != 0){
-                    log(`Access to ${resource} Granted !`)
+                    log(`${permission} access to ${resource} Granted !`)
                     return Promise.resolve(true)
                 } 
             } 
         } else {
-            log(`Access to ${resource} granted !`);
+            log(`${permission} access to ${resource} granted !`);
             return Promise.resolve(true)
         }
-        log(`Access to ${resource} denied`)        
+        log(`${permission} access to ${resource} denied`)        
         return Promise.resolve(false);
     }
 

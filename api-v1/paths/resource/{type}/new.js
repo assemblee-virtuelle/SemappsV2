@@ -1,8 +1,16 @@
 module.exports = function(resourceService) {
     let operations = {
-      POST
+      POST,
+      parameters: [
+        {
+          in: 'path',
+          name: 'type',
+          required: true,
+          type: 'string'
+        },
+      ]
     };
-    
+
     async function POST(req, res, next) {
       const resource = await resourceService.create(req);
       if (resource && resource.error){
@@ -31,14 +39,8 @@ module.exports = function(resourceService) {
             required:true,
             description:'Resource to add in jsonLD',
             schema:{
-              type:'object',
-              properties:{
-                resourceType: {type:'string'},
-                resourceData: {
-                  type:'array',
-                  items:{type:'object'}
-                }
-              }
+              type:'array',
+              items:{type:'object'}
             }
         }
       ],

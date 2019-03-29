@@ -13,7 +13,7 @@ let tests = {
     },
     resource:{
         type:'Document',
-        payload:[ { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+        payload:[ { "@id": "http://localhost:3030/TestSemapps/data/Project/6fbfe31553264760403",
             "@type": "http://virtual-assembly.org/pair#Document" },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
             "http://virtual-assembly.org/pair#aboutPage": "https://frama.link/matrix-apm" },
@@ -58,8 +58,8 @@ let tests = {
             "http://virtual-assembly.org/pair#isPublic": "1" },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
             "http://virtual-assembly.org/pair#preferedLabel": "APM" } ],
-        resource2: [ { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
-          "@type": "http://virtual-assembly.org/pair#Document" },
+        resource2: [ { "@id": "http://localhost:3030/TestSemapps/data/Project/6fbfe31553264760403",
+          "@type": "http://virtual-assembly.org/pair#Peinture" },
         { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
           "http://virtual-assembly.org/pair#aboutPage": "https://frama.link/matrix-apm" },
         { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
@@ -103,72 +103,22 @@ let tests = {
           "http://virtual-assembly.org/pair#isPublic": "1" },
         { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
           "http://virtual-assembly.org/pair#preferedLabel": "APM" } ],
-        tespayload:{
-            "@type" : "http://virtual-assembly.org/pair#Document",
-            "aboutPage" : [ "https://frama.link/matrix-apm", "https://frama.link/semapps-apm", "https://frama.link/news-apm" ],
-            "accessWrite" : "http://data.virtual-assembly.org:9050/ldp/1518201886008-2534464400820744",
-            "adress" : "122 Rue Réaumur 75002 Paris",
-            "alternativeLabel" : "Association pour le Progrès du Management",
-            "comment" : "Accompagnement à la création d'un réseau augmenté",
-            "delivers" : "http://data.virtual-assembly.org:9050/ldp/9053265003-2721621585",
-            "description" : "Accompagnement de l'APM dans la réalisation de plusieurs pilotes pour l'année 2019",
-            "hasType" : "http://data.virtual-assembly.org:9050/ldp/1518605149246-2937727638911587",
-            "homePage" : "https://www.apm.fr/",
-            "image" : "http://semapps.virtual-assembly.org/uploads/pictures/9ab5bb9b9e6eb04975ca72a5cfb387b5.jpeg",
-            "involves" : [ "http://data.virtual-assembly.org:9050/ldp/1519985255048-4317833441300236", "http://data.virtual-assembly.org:9050/ldp/1523347409870-7679988262801645", "http://data.virtual-assembly.org:9050/ldp/1518200626242-2533204635079631" ],
-            "isManagedBy" : "http://data.virtual-assembly.org:9050/ldp/1238755194-7389627001",
-            "isPublic" : "1",
-            "preferedLabel" : "APM",
-            "@context" : {
-              "isPublic" : {
-                "@id" : "http://virtual-assembly.org/pair#isPublic"
-              },
-              "involves" : {
-                "@id" : "http://virtual-assembly.org/pair#involves",
-                "@type" : "@id"
-              },
-              "aboutPage" : {
-                "@id" : "http://virtual-assembly.org/pair#aboutPage"
-              },
-              "comment" : {
-                "@id" : "http://virtual-assembly.org/pair#comment"
-              },
-              "adress" : {
-                "@id" : "http://virtual-assembly.org/pair#adress"
-              },
-              "image" : {
-                "@id" : "http://virtual-assembly.org/pair#image"
-              },
-              "isManagedBy" : {
-                "@id" : "http://virtual-assembly.org/pair#isManagedBy",
-                "@type" : "@id"
-              },
-              "hasType" : {
-                "@id" : "http://virtual-assembly.org/pair#hasType",
-                "@type" : "@id"
-              },
-              "accessWrite" : {
-                "@id" : "http://virtual-assembly.org/pair#accessWrite",
-                "@type" : "@id"
-              },
-              "delivers" : {
-                "@id" : "http://virtual-assembly.org/pair#delivers",
-                "@type" : "@id"
-              },
-              "preferedLabel" : {
-                "@id" : "http://virtual-assembly.org/pair#preferedLabel"
-              },
-              "alternativeLabel" : {
-                "@id" : "http://virtual-assembly.org/pair#alternativeLabel"
-              },
-              "description" : {
-                "@id" : "http://virtual-assembly.org/pair#description"
-              },
-              "homePage" : {
-                "@id" : "http://virtual-assembly.org/pair#homePage"
-              }
-            }
-        }
+        resource3: [ {
+          "http://virtual-assembly.org/pair#adress": "122 Rue Réaumur 75002 Paris" },
+        { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#alternativeLabel": "Association pour le Progrès du Management" },
+        { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#comment": "Accompagnement à la création d\"un réseau augmenté" },
+        { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#delivers": 
+            { "@id": "http://data.virtual-assembly.org:9050/ldp/9053265003-2721621585" } },
+        { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#description": "Accompagnement de l\"APM dans la réalisation de plusieurs pilotes pour l\"année 2019" },
+        { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#hasType": 
+            { "@id": "http://data.virtual-assembly.org:9050/ldp/1518605149246-2937727638911587" } },
+        { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#homePage": "https://www.apm.fr/" }, ],
     },
     profile:[
       {
@@ -378,6 +328,147 @@ let tests = {
           "@id" : "http://virtual-assembly.org/pair#alias"
         }
       }
+      }
+    ],
+    profile2: [
+      {
+        "@id" : "http://data.virtual-assembly.org:9050/ldp/1518200626242-2533204635079631",
+        "@type" : [ "http://xmlns.com/foaf/0.1/Person", "http://virtual-assembly.org/pair#Person" ],
+        "Skill" : [ "http://dbpedia.org/resource/Design_thinking", "http://dbpedia.org/resource/Divergent_thinking" ],
+        "aboutPage" : [ "http://reseau.lesgrandsvoisins.org/detail?uri=urn%253Agv%252Fcontacts%252Frow%252F24", "https://matrix.to/#/@guillaume_av:matrix.virtual-assembly.org", "http://facebook.com/grouyer" ],
+        "adress" : "10 Rue Chaptal 93800 Épinay-sur-Seine",
+        "adressLine2" : "Au bord de la Seine",
+        "alias" : "SAmy",
+        "brainstorms" : [ "http://data.virtual-assembly.org:9050/ldp/1520328295803-4660874195977689", "http://data.virtual-assembly.org:9050/ldp/1521199177106-5531755498967432", "http://data.virtual-assembly.org:9050/ldp/1519668309046-4000887439372217" ],
+        "comment" : "Coordinateur de l'Assemblée Virtuelle, concepteur de projets au service de la transition.",
+        "description" : "Un peu plus d'une trentaine d'années au compteur, dont les 15 dernières à m'ouvrir sur le monde, à travers des voyages, des études (sciences politiques), des recherches (philosophie, biomimétisme), des rencontres, des expériences diverses et variées qui chacune à leur manière ont nourri mon regard et ma personnalité. \r\n\r\nAujourd'hui, je consacre la majeure partie de mon temps au développement de l'Assemblée Virtuelle, une association développant des logiciels libres basés sur le [web sémantique](http://semapps.virtual-assembly.org/detail?uri=http%253A%252F%252Fdata.virtual-assembly.org%253A9050%252Fldp%252F1521125835559-5458413951724514), afin de favoriser l'interconnexion des acteurs de la transition.",
+        "email" : "guillaume.rouyer@assemblee-virtuelle.org",
+        "firstName" : "Samy",
+        "@context" : {
+          "topic_interest" : {
+            "@id" : "http://xmlns.com/foaf/0.1/topic_interest",
+            "@type" : "@id"
+          },
+          "knows" : {
+            "@id" : "http://virtual-assembly.org/pair#knows",
+            "@type" : "@id"
+          },
+          "firstName" : {
+            "@id" : "http://virtual-assembly.org/pair#firstName"
+          },
+          "isParticipatingIn" : {
+            "@id" : "http://virtual-assembly.org/pair#isParticipatingIn",
+            "@type" : "@id"
+          },
+          "brainstorms" : {
+            "@id" : "http://virtual-assembly.org/pair#brainstorms",
+            "@type" : "@id"
+          },
+          "isInvolvedIn" : {
+            "@id" : "http://virtual-assembly.org/pair#isInvolvedIn",
+            "@type" : "@id"
+          },
+          "isEmployedBy" : {
+            "@id" : "http://virtual-assembly.org/pair#isEmployedBy",
+            "@type" : "@id"
+          },
+          "isContributorOfDocument" : {
+            "@id" : "http://virtual-assembly.org/pair#isContributorOfDocument",
+            "@type" : "@id"
+          },
+          "organizes" : {
+            "@id" : "http://virtual-assembly.org/pair#organizes",
+            "@type" : "@id"
+          },
+          "hasInterest" : {
+            "@id" : "http://virtual-assembly.org/pair#hasInterest",
+            "@type" : "@id"
+          },
+          "isAuthorOfDocument" : {
+            "@id" : "http://virtual-assembly.org/pair#isAuthorOfDocument",
+            "@type" : "@id"
+          },
+          "isPublisherOfDocument" : {
+            "@id" : "http://virtual-assembly.org/pair#isPublisherOfDocument",
+            "@type" : "@id"
+          },
+          "isMemberOf" : {
+            "@id" : "http://virtual-assembly.org/pair#isMemberOf",
+            "@type" : "@id"
+          },
+          "hasKeyword" : {
+            "@id" : "http://virtual-assembly.org/pair#hasKeyword",
+            "@type" : "@id"
+          },
+          "givenName" : {
+            "@id" : "http://xmlns.com/foaf/0.1/givenName"
+          },
+          "phone" : {
+            "@id" : "http://xmlns.com/foaf/0.1/phone"
+          },
+          "image" : {
+            "@id" : "http://virtual-assembly.org/pair#image"
+          },
+          "manages" : {
+            "@id" : "http://virtual-assembly.org/pair#manages",
+            "@type" : "@id"
+          },
+          "adress" : {
+            "@id" : "http://virtual-assembly.org/pair#adress"
+          },
+          "Skill" : {
+            "@id" : "http://virtual-assembly.org/pair#Skill",
+            "@type" : "@id"
+          },
+          "lastName" : {
+            "@id" : "http://virtual-assembly.org/pair#lastName"
+          },
+          "isResponsibleFor" : {
+            "@id" : "http://virtual-assembly.org/pair#isResponsibleFor",
+            "@type" : "@id"
+          },
+          "mbox" : {
+            "@id" : "http://xmlns.com/foaf/0.1/mbox"
+          },
+          "familyName" : {
+            "@id" : "http://xmlns.com/foaf/0.1/familyName"
+          },
+          "displayLabel" : {
+            "@id" : "urn:displayLabel"
+          },
+          "needs" : {
+            "@id" : "http://virtual-assembly.org/pair#needs",
+            "@type" : "@id"
+          },
+          "homePage" : {
+            "@id" : "http://virtual-assembly.org/pair#homePage"
+          },
+          "email" : {
+            "@id" : "http://virtual-assembly.org/pair#email"
+          },
+          "description" : {
+            "@id" : "http://virtual-assembly.org/pair#description"
+          },
+          "offers" : {
+            "@id" : "http://virtual-assembly.org/pair#offers",
+            "@type" : "@id"
+          },
+          "comment" : {
+            "@id" : "http://virtual-assembly.org/pair#comment"
+          },
+          "aboutPage" : {
+            "@id" : "http://virtual-assembly.org/pair#aboutPage"
+          },
+          "adressLine2" : {
+            "@id" : "http://virtual-assembly.org/pair#adressLine2"
+          },
+          "homepage" : {
+            "@id" : "http://xmlns.com/foaf/0.1/homepage"
+          },
+          "alias" : {
+            "@id" : "http://virtual-assembly.org/pair#alias"
+          }
+        }
       }
     ]
 }

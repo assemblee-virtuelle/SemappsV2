@@ -336,7 +336,7 @@ let tests = {
         "@type" : [ "http://xmlns.com/foaf/0.1/Person", "http://virtual-assembly.org/pair#Person" ],
         "Skill" : [ "http://dbpedia.org/resource/Design_thinking", "http://dbpedia.org/resource/Divergent_thinking" ],
         "aboutPage" : [ "http://reseau.lesgrandsvoisins.org/detail?uri=urn%253Agv%252Fcontacts%252Frow%252F24", "https://matrix.to/#/@guillaume_av:matrix.virtual-assembly.org", "http://facebook.com/grouyer" ],
-        "adress" : "10 Rue Chaptal 93800 Épinay-sur-Seine",
+        "adress" : "Amilcar cabral",
         "adressLine2" : "Au bord de la Seine",
         "alias" : "SAmy",
         "brainstorms" : [ "http://data.virtual-assembly.org:9050/ldp/1520328295803-4660874195977689", "http://data.virtual-assembly.org:9050/ldp/1521199177106-5531755498967432", "http://data.virtual-assembly.org:9050/ldp/1519668309046-4000887439372217" ],

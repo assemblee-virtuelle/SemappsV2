@@ -1,6 +1,5 @@
 const express = require('express');
 const {initialize} = require('express-openapi');
-const v1UserService = require('./api-v1/services/userService');
 const v1ApiDoc = require('./api-v1/api-doc');
 const v1ResourceService = require('./api-v1/services/resourceService');
 const v1AuthService = require('./api-v1/services/authService');
@@ -38,9 +37,9 @@ if (process.env.NODE_ENV === 'test'){
 
 //Initialize sparqlStore
 const sparqlStore = new SparqlStore(tpsOptions);
+app.set('store', sparqlStore);
 
 //Initialize services with sparql client injection
-const _userService = new v1UserService(sparqlStore);
 const _authService = new v1AuthService(sparqlStore);
 const _resourceService = new v1ResourceService(sparqlStore);
 
@@ -49,7 +48,6 @@ let init = initialize({
   app,
   apiDoc: v1ApiDoc,
   dependencies: {
-    userService: _userService,
     authService: _authService,
     resourceService: _resourceService
   },

@@ -1,4 +1,4 @@
-module.exports = function(userService) {
+module.exports = function(resourceService) {
 
   let operations = {
     GET,
@@ -15,7 +15,7 @@ module.exports = function(userService) {
   };
 
   async function DELETE(req, res, next){
-    let ret = await userService.delete(req);
+    let ret = await resourceService.delete(req);
     if (ret && ret.error){
       res.status(ret.error_status).send(ret.error_description);
     } else {
@@ -24,7 +24,7 @@ module.exports = function(userService) {
   }
 
   async function PUT(req, res, next){
-    let ret = await userService.edit(req);
+    let ret = await resourceService.edit(req);
     if (ret && ret.error){
       res.status(ret.error_status).send(ret.error_description);
     } else {
@@ -33,13 +33,11 @@ module.exports = function(userService) {
   }
 
   async function GET(req, res, next) {
-    if(req.params && req.params.id !== "new"){
-      let ret = await userService.userById(req.params.id);
-      if (ret && ret.error){
-        res.status(ret.error_status).send(ret.error_description);
-      } else {
-        res.status(200).send(ret);
-      }
+    let ret = await resourceService.getById(req.params.id);
+    if (ret && ret.error){
+      res.status(ret.error_status).send(ret.error_description);
+    } else {
+      res.status(200).send(ret);
     }
   }
 

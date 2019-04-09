@@ -21,26 +21,18 @@ describe('Resource API', () => {
 
     it('Creates a new resource', done => {
 
-        app.post(`/v1/resource/${type}/new`)
+        app.post(`/v1/resource/${type}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
         .send(payload)
-        .expect(200, (err, res) => {
+        .expect(200)
+        .end((err, res) => {
+            if (err) { return done(err); }
             resourceUri = res.body.uri;
             resourceId = res.body.id;
-            if (err) { return done(err); }
             done();
         })
 
-        // app.post('/v1/resource/new')
-        // .set('Accept', /application\/json/)
-        // .set('Authorization', `Bearer ${id}`)
-        // .send(requestData2)
-        // .expect(200, (err, res) => {
-        //     resourceUri = res.body.uri;
-        //     if (err) { return done(err); }
-        //     done();
-        // })
     })
 
     it('Show a list of resources', done => {
@@ -49,10 +41,11 @@ describe('Resource API', () => {
         .get(`/v1/resource/${type}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
-        .expect('Content-Type', /application\/json/)
         .expect(200)
+        .expect('Content-Type', /application\/json/)
         .end((err, res) => {
             if(err) {return done(err);}
+            expect(res.body).to.not.be.empty;
             done();
         })
     })
@@ -63,9 +56,11 @@ describe('Resource API', () => {
         .get(`/v1/resource/${type}/${resourceId}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
+        .expect(200)
         .expect('Content-Type', /application\/json/)
-        .expect(200, (err, res) => {
+        .end((err, res) => {
             if(err) {return done(err);}
+            expect(res.body).to.not.be.empty;
             done();
         })
     })
@@ -77,8 +72,8 @@ describe('Resource API', () => {
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
         .send(resource2)
-        .expect('Content-Type', /application\/json/)
         .expect(200)
+        .expect('Content-Type', /application\/json/)
         .end((err, res) => {
             if(err){return done(err)};
             done()

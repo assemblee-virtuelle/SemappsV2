@@ -52,8 +52,9 @@ describe('API', () => {
         app
         .get('/v1/api-docs')
         .set('Content-Type', 'application/json')
+        .expect(200)
         .expect('Content-Type', /json/)
-        .expect(200, function(err, res) {
+        .end(function(err, res) {
           if (err) { return done(err); }
           // Done
           done();
@@ -76,6 +77,7 @@ describe('API', () => {
             .expect(201, (err, res) => {
                 if(err) { return done(err); }
                 id = res.body.id
+                console.log('id :', id)
                 tests.user.id = id;
                 done();
             })
@@ -135,12 +137,12 @@ describe('API', () => {
 
         it('Creates the userInfo', done => {
             let profile = tests.profile;
-            app.post('/v1/user/new')
+            app.post('/v1/user/')
             .set('Authorization', `Bearer ${id}`)
             .set('Accept', /application\/json/)
             .send(profile)
-            .expect('Content-Type', /application\/json/)
             .expect(200)
+            .expect('Content-Type', /application\/json/)
             .end((err,res) => {
                 if (err) {return done(err);}
                 done();
@@ -151,8 +153,9 @@ describe('API', () => {
             app.get(`/v1/user/${id}`)
             .set('Authorization', `Bearer ${id}`)
             .set('Accept', /application\/json/)
+            .expect(200)
             .expect('Content-Type', /json/)
-            .expect(200, function(err, res) {
+            .end(function(err, res) {
                 if(err) { return done(err); }
                 done();
             })
@@ -164,8 +167,8 @@ describe('API', () => {
             .set('Authorization', `Bearer ${id}`)
             .set('Accept', /application\/json/)
             .send(profile)
-            .expect('Content-Type', /json/)
             .expect(200)
+            .expect('Content-Type', /json/)
             .end((err, res) => {
                 if (err) {return done(err);}
                 done();

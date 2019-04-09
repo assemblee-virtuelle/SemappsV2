@@ -18,6 +18,7 @@ module.exports = function(authService) {
     POST.apiDoc = {
       summary: 'Login to Semapps',
       operationId: 'login',
+      'x-express-openapi-inherit-additional-middleware':false,
       tags:["auth"],
       parameters:[
         {

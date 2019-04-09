@@ -21,13 +21,12 @@ module.exports = function(resourceService) {
     };
 
     async function DELETE(req, res, next){
-        if (req.prams){
-            let ret = await resourceService.delete(req.header, req.params);
-            if (ret && ret.error){
-                res.status(ret.error_status).json(ret);
-            }
-            res.status(200).json(ret);
-        }
+      const resource = await resourceService.delete(req);
+      if (resource && resource.error){
+        res.status(resource.error_status).json(resource);
+      } else {
+        res.status(200).json(resource);
+      }
     }
 
 
@@ -43,7 +42,7 @@ module.exports = function(resourceService) {
     async function GET(req, res, next) {
   
       if(req.params){
-        let ret = await resourceService.getById(req.headers, req.params);
+        let ret = await resourceService.getById(req.params);
         if (ret && ret.error){
           res.status(ret.error_status).json(ret);
         } else {

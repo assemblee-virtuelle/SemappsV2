@@ -20,3 +20,6 @@ The JSON documentation of the api is at http://localhost:3000/v1/api-docs
 
 The Jena configuration file is located at /config/tripleStore.json
  
+### Tests
+
+run `npm test`

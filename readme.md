@@ -1,8 +1,12 @@
 Prerequisites : 
 
-[Jena fuseki](https://jena.apache.org/download/index.cgi)
-Download Apache Jena Fuseki and not Apache Jena.
+
+[Jena fuseki](https://jena.apache.org/download/index.cgi) 
+
+Download Apache Jena Fuseki and not Apache Jena. 
+
 Unzip the archive, and launch fuseki-server. Jena will be launched on port 3030 by default.
+
 
 Install notes :
 

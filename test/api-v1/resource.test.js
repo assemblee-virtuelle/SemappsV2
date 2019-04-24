@@ -3,7 +3,6 @@ let expect = require('chai').expect;
 let tests = require('../testUtils');
 require('./user.test');
 
-
 describe('Resource API', () => {
     let app = tests.app;
     let id = "";
@@ -20,6 +19,17 @@ describe('Resource API', () => {
     })
 
     it('Creates a new resource', done => {
+
+        app.post(`/v1/resource/${type}`)
+        .set('Accept', /application\/json/)
+        .set('Authorization', `Bearer ${id}`)
+        .send(payload)
+        .expect(200)
+        .end((err, res) => {
+            if (err) { return done(err); }
+            resourceUri = res.body.uri;
+            resourceId = res.body.id;
+        })
 
         app.post(`/v1/resource/${type}`)
         .set('Accept', /application\/json/)
@@ -66,7 +76,6 @@ describe('Resource API', () => {
     })
 
     it('Edit a resource', done => {
-
         app
         .put(`/v1/resource/${type}/${resourceId}`)
         .set('Accept', /application\/json/)
@@ -80,20 +89,17 @@ describe('Resource API', () => {
         })
     })
 
-    // it('Delete triples of a resource', done => {
-
-    //     app
-    //     .delete(`/v1/resource/${type}/${resourceId}`)
-    //     .set('Accept', /application\/json/)
-    //     .set('Authorization', `Bearer ${id}`)
-    //     .send(resource3)
-    //     .expect('Content-Type', /application\/json/)
-    //     .expect(200)
-    //     .end((err, res) => {
-    //         if(err){return done(err)};
-    //         done()
-    //     })
-    // })
-
+    it('Deletes a resource', done => {
+        app
+        .delete(`/v1/resource/${type}/${resourceId}`)
+        .set('Accept', /application\/json/)
+        .set('Authorization', `Bearer ${id}`)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+        .end((err, res) => {
+            if(err){return done(err)};
+            done()
+        })
+    })
 
 })

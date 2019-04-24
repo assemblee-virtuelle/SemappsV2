@@ -6,11 +6,31 @@ let _app = request.agent(server.listen(3001))
 let tests = {
     app: _app,
     user:{
-        email:'admin@semapps.fr',
-        username:'admin',
+        email:'samy@vincent.fr',
+        username:'samy',
         password:'password',
         id:""
     },
+    users:[
+      {
+        email:'admin@admin.fr',
+        username:'admin',
+        password:'pass',
+        id:''
+      },
+      {
+        email:'modo@modo.fr',
+        username:'modo',
+        password:'pass',
+        id:''
+      },
+      {
+        email:'user@user.fr',
+        username:'user',
+        password:'pass',
+        id:''
+      }
+    ],
     resource:{
         type:'Document',
         payload:[ { "@id": "http://localhost:3030/TestSemapps/data/Project/6fbfe31553264760403",
@@ -55,7 +75,9 @@ let tests = {
             "http://virtual-assembly.org/pair#isManagedBy": 
             { "@id": "http://data.virtual-assembly.org:9050/ldp/1238755194-7389627001" } },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
-            "http://virtual-assembly.org/pair#isPublic": "1" },
+            "http://virtual-assembly.org/pair#isPublic": "0" },
+          { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+            "http://virtual-assembly.org/pair#isProtected": "1" },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
             "http://virtual-assembly.org/pair#preferedLabel": "APM" } ],
         resource2: [ { "@id": "http://localhost:3030/TestSemapps/data/Project/6fbfe31553264760403",
@@ -333,12 +355,11 @@ let tests = {
     profile2: [
       {
         "@id" : "http://data.virtual-assembly.org:9050/ldp/1518200626242-2533204635079631",
-        "@type" : [ "http://xmlns.com/foaf/0.1/Person", "http://virtual-assembly.org/pair#Person" ],
         "Skill" : [ "http://dbpedia.org/resource/Design_thinking", "http://dbpedia.org/resource/Divergent_thinking" ],
         "aboutPage" : [ "http://reseau.lesgrandsvoisins.org/detail?uri=urn%253Agv%252Fcontacts%252Frow%252F24", "https://matrix.to/#/@guillaume_av:matrix.virtual-assembly.org", "http://facebook.com/grouyer" ],
         "adress" : "Amilcar cabral",
         "adressLine2" : "Au bord de la Seine",
-        "alias" : "SAmy",
+        "alias" : "",
         "brainstorms" : [ "http://data.virtual-assembly.org:9050/ldp/1520328295803-4660874195977689", "http://data.virtual-assembly.org:9050/ldp/1521199177106-5531755498967432", "http://data.virtual-assembly.org:9050/ldp/1519668309046-4000887439372217" ],
         "comment" : "Coordinateur de l'Assemblée Virtuelle, concepteur de projets au service de la transition.",
         "description" : "Un peu plus d'une trentaine d'années au compteur, dont les 15 dernières à m'ouvrir sur le monde, à travers des voyages, des études (sciences politiques), des recherches (philosophie, biomimétisme), des rencontres, des expériences diverses et variées qui chacune à leur manière ont nourri mon regard et ma personnalité. \r\n\r\nAujourd'hui, je consacre la majeure partie de mon temps au développement de l'Assemblée Virtuelle, une association développant des logiciels libres basés sur le [web sémantique](http://semapps.virtual-assembly.org/detail?uri=http%253A%252F%252Fdata.virtual-assembly.org%253A9050%252Fldp%252F1521125835559-5458413951724514), afin de favoriser l'interconnexion des acteurs de la transition.",

@@ -14,7 +14,7 @@ module.exports = class {
       this.sGraph = client.securityGraph();
       this.client = client;
       //DOUBLON
-      this.permissionsAtCreate = ['Create', 'Write', 'Read', 'Delete', 'Edit']; //TODO: Change this for object key value in config
+      this.permissionsAtCreate = ['Create', 'Edit', 'Read', 'Delete', 'Control']; //TODO: Change this for object key value in config
       this.typeList = ['Project', 'Document', 'Event', 'Good', 'Service', 'Person', 'Organization', 'Places', 'User'];
       this.userPerms = new Security(this.client);
 
@@ -80,12 +80,6 @@ module.exports = class {
 
         //Convert uri in rdf-ext namedNode
         let userSubject = rdf.namedNode(this.sGraph.value + suffix);
-        
-        //Create basic roles blank nodes
-        let bnRead = rdf.blankNode("read");
-        let bnWrite = rdf.blankNode("write");
-
-        let generalAccess; //TODO: create general access roles e.g ADMIN, MODERATOR, etc
 
         let user = [
           rdf.quad(userSubject, ns.rdf('Type'), ns.sioc('UserAccount'), this.sGraph),
@@ -93,11 +87,15 @@ module.exports = class {
           rdf.quad(userSubject, ns.foaf('accountName'), rdf.literal(username), this.sGraph),
           rdf.quad(userSubject, ns.sioc('email'), rdf.literal(email), this.sGraph),
           rdf.quad(userSubject, ns.account('password'), rdf.literal(hash), this.sGraph),
-          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value), this.sGraph)
+          rdf.quad(userSubject, ns.sioc('account_of'), rdf.namedNode(this.uGraph.value + '/' + id), this.sGraph)
         ];
 
-        //Add default permissions (read, write, create and delete on all graph for the moment)
-        let permQuad = this.userPerms.createDefaultPermissions(userSubject, id, this.typeList, this.permissionsAtCreate)
+        //Add default graph permissions for User
+        let defaultPermissions = ['Create'];
+
+        //TODO: add default permissions for specific role
+
+        let permQuad = this.userPerms.createDefaultPermissions('', id, this.typeList, defaultPermissions);
         let permDataset = rdf.dataset(permQuad)
 
         let userGraph = rdf.graph(user);

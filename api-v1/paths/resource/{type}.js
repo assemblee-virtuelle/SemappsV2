@@ -93,7 +93,7 @@ module.exports = function(resourceService) {
     async function GET(req, res, next) {
   
       if(req.params){
-        let ret = await resourceService.getByType(req.params.type);
+        let ret = await resourceService.getByType(req);
         if (ret && ret.error){
           res.status(ret.error_status).json(ret);
         } else {

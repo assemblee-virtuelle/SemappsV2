@@ -3,6 +3,7 @@ const {initialize} = require('express-openapi');
 const v1ApiDoc = require('./api-v1/api-doc');
 const v1ResourceService = require('./api-v1/services/resourceService');
 const v1AuthService = require('./api-v1/services/authService');
+const v1SparqlService = require('./api-v1/services/sparqlService');
 const swaggerUi = require('swagger-ui-express');
 const SparqlStore = require('./api-v1/services/tripleStoreClient');
 const bodyParser = require('body-parser');
@@ -42,6 +43,7 @@ app.set('store', sparqlStore);
 //Initialize services with sparql client injection
 const _authService = new v1AuthService(sparqlStore);
 const _resourceService = new v1ResourceService(sparqlStore);
+const _sparqlService = new v1SparqlService(sparqlStore);
 
 //Initialize Swagger
 let init = initialize({
@@ -49,7 +51,8 @@ let init = initialize({
   apiDoc: v1ApiDoc,
   dependencies: {
     authService: _authService,
-    resourceService: _resourceService
+    resourceService: _resourceService,
+    sparqlService: _sparqlService
   },
   consumesMiddleware:{
     'application/json':bodyParser.json()

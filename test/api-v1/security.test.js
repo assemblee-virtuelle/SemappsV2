@@ -2,7 +2,7 @@ let expect = require('chai').expect;
 let request = require("supertest")
 var tests = require('../testUtils');
 
-require('./resource.test');
+require('./sparql.test');
 let app = tests.app;
 let users = tests.users;
 
@@ -25,20 +25,20 @@ let users = tests.users;
 
 //     it('Creates three users (future: an Admin, an Editor and a User)', (done) => {
 //         app.post('/v1/auth/new')
-//         .send(users[0])
 //         .set('Accept', /application\/json/)
+//         .send(users[0])
 //         .expect(201, (err, res) => {
 //             if(err) { return done(err); }
 //             users[0].id = res.body.id;
 //             app.post('/v1/auth/new')
-//             .send(users[1])
 //             .set('Accept', /application\/json/)
+//             .send(users[1])
 //             .expect(201, (err, res) => {
 //                 if(err) { return done(err); }
 //                 users[1].id = res.body.id;
 //                 app.post('/v1/auth/new')
-//                 .send(users[2])
 //                 .set('Accept', /application\/json/)
+//                 .send(users[2])
 //                 .expect(201, (err, res) => {
 //                     if(err) { return done(err); }
 //                     users[2].id = res.body.id;

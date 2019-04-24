@@ -23,3 +23,12 @@ The Jena configuration file is located at /config/tripleStore.json
 ### Tests
 
 run `npm test`
+
+
+### Problemes actuels
+
+#### Rdf-ext
+
+- Lorsqu'un dataset est vide, si on le convertit en stream pour l'envoyer au rdf-store-sparql, rdf-ext se met en attente infinie d'une Promise. Issue : https://github.com/rdf-ext/rdf-ext/issues/80
+- L'envoi d'un header Accept pour avoir du `application/sparql-results+json` a rdf-fetch-lite (le rdf-fetch par défaut dans le rdf-store-sparql) ne marche pas, il est écrasé par un type `text/turtle`. Issue : https://github.com/rdf-ext/rdf-fetch-lite/issues/4
+

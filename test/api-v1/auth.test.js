@@ -63,8 +63,8 @@ describe('Auth API', () => {
 
     it('Creates a new user', done => {
         app.post('/v1/auth/new')
-        .send(user)
         .set('Accept', /application\/json/)
+        .send(user)
         .expect(201, (err, res) => {
             if(err) { return done(err); }
             tests.user.id = res.body.id;
@@ -74,8 +74,8 @@ describe('Auth API', () => {
 
     it('Check if email exist', done => {
         app.post('/v1/auth/new')
-        .send(user)
         .set('Accept', /application\/json/)
+        .send(user)
         .expect(409, (err, res) => {
             if(err) { return done(err); }
             done();

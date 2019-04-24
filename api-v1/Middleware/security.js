@@ -95,6 +95,11 @@ async function getPermissionsOfResource(req, res, next){
     let method = req.method;
     let allowed = false;
 
+    if (!req.params.type){
+        next();
+        return;
+    }
+
     if(req.userId){
         let type = req.params.type;
         let resourceUri;

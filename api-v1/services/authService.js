@@ -105,7 +105,6 @@ module.exports = class {
         return new Promise((resolve, reject) => {
           rdf.waitFor(stream).then((e) => {
             response = {
-              user: userSubject.value,
               id:id
             }
             resolve(response);

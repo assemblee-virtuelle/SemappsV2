@@ -1,6 +1,6 @@
 let request = require("supertest")
 let expect = require('chai').expect;
-let tests = require('../testUtils');
+let tests = require('../../testUtils');
 require('./user.test');
 
 describe('Resource API', () => {
@@ -18,7 +18,7 @@ describe('Resource API', () => {
         done();
     })
 
-    it('Creates a new resource', done => {
+    it('Creates (2) a new resource', done => {
 
         app.post(`/v1/resource/${type}`)
         .set('Accept', /application\/json/)
@@ -29,6 +29,7 @@ describe('Resource API', () => {
             if (err) { return done(err); }
             resourceUri = res.body.uri;
             resourceId = res.body.id;
+            tests.resource.id = res.body.id;
         })
 
         app.post(`/v1/resource/${type}`)

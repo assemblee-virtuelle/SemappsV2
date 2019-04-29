@@ -11,5 +11,4 @@ const apiDoc = {
   'x-express-openapi-additional-middleware':security,
   paths: {}
 };
-   
 module.exports = apiDoc;

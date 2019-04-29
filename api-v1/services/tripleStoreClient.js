@@ -1,6 +1,8 @@
 const rdf = require('rdf-ext');
 const fetch = require('node-fetch');
 const SparqlStore = require('rdf-store-sparql');
+const formats = require('@rdfjs/formats-common');
+const fetchLite = require('@rdfjs/fetch-lite');
 
 module.exports = class {
     constructor(args){
@@ -36,6 +38,7 @@ module.exports = class {
         this.userSuffix = "/user_";
 
         this.store = new SparqlStore(sparqlUrl, options);
+        this.store.client.fetch = (url, options) => fetchLite(url, { formats, ...options });
 
         fetch(uri + '/$/server').then(res => {
             //TODO: check WWW authenticate

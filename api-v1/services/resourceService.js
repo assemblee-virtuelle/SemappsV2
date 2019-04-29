@@ -98,7 +98,6 @@ module.exports = class {
         let resourceIdentified = resourceDefault.map(q => {
             return rdf.quad(resourceUri, q.predicate, q.object, graph)
         })
-        //TODO: Get rid of empty predicates
         //Makes a new dataset with old quads and filters the triples to remove
         let oldResourceStream = this.store.match(resourceUri, null, null, graph);
         let oldResource = await rdf.dataset().import(oldResourceStream);
@@ -112,28 +111,15 @@ module.exports = class {
             }
         })
 
-        //Generate frontend uri (to change)
+        //Generate frontend uri (TODO: change ?)
         let uri = req.protocol + '://' + req.get('host') + req.originalUrl;
-
+        await this.store.remove(toRemove.toStream());
         return new Promise((resolve, reject) => {
-            //update triples
-
-            //FIXME: wait for rdf fix on empty dataset stream
-            if (toRemove.length != 0){
-                let removeStream = this.store.remove(toRemove.toStream());
-                rdf.waitFor(removeStream).then(() => {
-                    return this.store.import(resourceIdentified.toStream());
-                }).then(() => {
-                    log(`Edited ${params.type} - uri: ${uri}`);
-                    resolve({uri:uri, id:id});                            
-                })
-            } else {
-                this.store.import(resourceIdentified.toStream())
-                .then(() => {
-                    log(`Edited ${params.type} - uri: ${uri}`);
-                    resolve({uri:uri, id:id}); 
-                })
-            }
+            let stream = this.store.import(resourceIdentified.toStream())
+            rdf.waitFor(stream).then(() => {
+                log(`Edited ${params.type} - uri: ${uri}`);
+                resolve({uri:uri, id:id});                            
+            })
         });
 
     }
@@ -166,16 +152,21 @@ module.exports = class {
 
         if (this.permissionsEnabled){
             let authorizedUris = req.permList;
-            await this._asyncForEach(authorizedUris, async uri => {
-                let resourceStream = this.store.match(uri, null, null, graph);
-                let resourceQuads = await rdf.dataset().import(resourceStream);
-                graphQuads.addAll(resourceQuads);
-            })
+            if (authorizedUris !== undefined && authorizedUris.length !== 0){
+                await this._asyncForEach(authorizedUris, async uri => {
+                    let resourceStream = this.store.match(uri, null, null, graph);
+                    let resourceQuads = await rdf.dataset().import(resourceStream);
+                    graphQuads.addAll(resourceQuads);
+                })
+            }
         } else {
             let graphStream = this.store.match(null, null, null, graph);
             graphQuads = await rdf.dataset().import(graphStream);
         }
         
+        if (graphQuads.length == 0){
+            return {};
+        }
         let output = serializer.import(graphQuads.toStream());
         return new Promise((resolve, reject) => {
             output.on('data', jsonld => {

@@ -1,6 +1,6 @@
 let expect = require('chai').expect;
 let request = require("supertest")
-let tests = require('../testUtils');
+let tests = require('../../testUtils');
 
 let app = tests.app;
 let user = tests.user;

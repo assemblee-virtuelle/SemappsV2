@@ -32,6 +32,7 @@ let tests = {
       }
     ],
     resource:{
+        id: "",
         type:'Document',
         payload:[ { "@id": "http://localhost:3030/TestSemapps/data/Project/6fbfe31553264760403",
             "@type": "http://virtual-assembly.org/pair#Document" },

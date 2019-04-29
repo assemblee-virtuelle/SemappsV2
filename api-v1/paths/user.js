@@ -1,7 +1,11 @@
+const checkResourceAccess = require('../Middleware/resourceSecurity');
+
+
 module.exports = function(resourceService){
 
     let operations = {
-        POST
+        POST,
+        'x-express-openapi-additional-middleware':[checkResourceAccess],
     }
 
     async function POST(req, res, next) {

@@ -32,21 +32,22 @@ module.exports = class {
 
         if(sparqlQuery){
             return new Promise((resolve, reject) => {
-                this.store.client.selectQuery(sparqlQuery, {headers:{'accept':'application/sparql-results+json'}}).then(res => {
+                this.store.client.selectQuery(sparqlQuery).then(res => {
                     var stream = res.body
                     var content = ''
-                  
                     stream.on('data', function (result) {
-                      content += result.toString()
+                        content += result.toString()
                     })
-                  
                     stream.on('end', function () {
-                      // parse and stringify the content for pretty print
-                      resolve(content)
+                        // parse and stringify the content for pretty print
+                        if (res.status >= 400){
+                            return({error_status:res.status, error_description:content, error:res.statusText})
+                        } else {
+                            resolve(content)
+                        }
                     })
-                  
                     stream.on('error', function (err) {
-                      console.error(err)
+                        return({error_status:res.status, error_description:err, error:res.statusText});
                     })
                 })
                 .catch(err => console.log(err))

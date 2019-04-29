@@ -1,9 +1,13 @@
+const checkResourceAccess = require('../../Middleware/resourceSecurity');
+
+
 module.exports = function(resourceService) {
 
   let operations = {
     GET,
     PUT,
     DELETE,
+    'x-express-openapi-additional-middleware':[checkResourceAccess],
     parameters: [
       {
         in: 'path',

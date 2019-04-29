@@ -1,9 +1,11 @@
+const checkResourceAccess = require('../../Middleware/resourceSecurity');
+
 module.exports = function(resourceService) {
 
     let operations = {
       GET,
-    //   DELETE,
       POST,
+      'x-express-openapi-additional-middleware':[checkResourceAccess],
       parameters: [
         {
           in: 'path',
@@ -13,31 +15,6 @@ module.exports = function(resourceService) {
         },
       ],
     };
-
-    // async function DELETE(req, res, next){
-    //     if (req.prams){
-    //         let ret = await resourceService.delete(req.header, req.params);
-    //         if (ret && ret.error){
-    //             res.status(ret.error_status).json(ret);
-    //         }
-    //         res.status(200).json(ret);
-    //     }
-    // }
-
-    // DELETE.apiDoc = {
-    //     summary: 'Deletes a ressource',
-    //     operationId: 'delete',
-    //     tags: ["resource"],
-    //     parameters: [
-    //         {
-    //             in:'header',
-    //             required: true,
-    //             type:'string',
-    //             name:'Authorization',
-    //             description:'Bearer {token}'
-    //         }
-    //     ]
-    // }
 
     async function POST(req, res, next) {
       const resource = await resourceService.create(req);

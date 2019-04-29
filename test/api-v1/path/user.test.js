@@ -1,6 +1,6 @@
 let expect = require('chai').expect;
 let request = require("supertest")
-var tests = require('../testUtils');
+var tests = require('../../testUtils');
 
 require('./auth.test');
 let app = tests.app;
@@ -25,7 +25,9 @@ describe('User API', () => {
         .expect(200)
         .expect('Content-Type', /application\/json/)
         .end((err,res) => {
-            if (err) {return done(err);}
+            if (err) {
+                return done(err);
+            }
             done();
         })
     })

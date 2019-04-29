@@ -1,12 +1,12 @@
 let expect = require('chai').expect;
 let request = require("supertest")
-var tests = require('../testUtils');
+var tests = require('../../testUtils');
 
 require('./resource.test');
 let app = tests.app;
 let users = tests.users;
 
-describe('Sparql service', () => {
+describe('Sparql API', () => {
     let id = "";
     let resourceUri = "";
     let resourceId = "";
@@ -33,9 +33,10 @@ describe('Sparql service', () => {
         .set('Accept', /application\/json/)
         .query({'query':query})
         .expect(200)
+        .expect('Content-Type', /application\/json/)
         .end((err, res) => {
             if (err) {return done(err);}
-            // console.log('res.body', res.body)
+            expect(res.body).not.to.be.empty;
             done();
         })
 

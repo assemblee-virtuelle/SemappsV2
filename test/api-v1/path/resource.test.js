@@ -90,17 +90,17 @@ describe('Resource API', () => {
         })
     })
 
-    it('Deletes a resource', done => {
-        app
-        .delete(`/v1/resource/${type}/${resourceId}`)
-        .set('Accept', /application\/json/)
-        .set('Authorization', `Bearer ${id}`)
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
-        .end((err, res) => {
-            if(err){return done(err)};
-            done()
-        })
-    })
+    // it('Deletes a resource', done => {
+    //     app
+    //     .delete(`/v1/resource/${type}/${resourceId}`)
+    //     .set('Accept', /application\/json/)
+    //     .set('Authorization', `Bearer ${id}`)
+    //     .expect(200)
+    //     .expect('Content-Type', /application\/json/)
+    //     .end((err, res) => {
+    //         if(err){return done(err)};
+    //         done()
+    //     })
+    // })
 
 })

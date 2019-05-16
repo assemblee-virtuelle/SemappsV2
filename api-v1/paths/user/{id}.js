@@ -37,7 +37,7 @@ module.exports = function(resourceService) {
   }
 
   async function GET(req, res, next) {
-    let ret = await resourceService.getById(req.params.id);
+    let ret = await resourceService.getById(req.params);
     if (ret && ret.error){
       res.status(ret.error_status).send(ret.error_description);
     } else {

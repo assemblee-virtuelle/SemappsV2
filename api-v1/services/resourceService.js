@@ -41,7 +41,7 @@ module.exports = class {
                 break;
             case 'delete':
                 if (this.permissionsEnabled){
-
+                    
                 }
                 break;
             default:
@@ -165,7 +165,7 @@ module.exports = class {
         }
         
         if (graphQuads.length == 0){
-            return {};
+            return {error:'Not found', error_status:404};
         }
         let output = serializer.import(graphQuads.toStream());
         return new Promise((resolve, reject) => {
@@ -181,6 +181,9 @@ module.exports = class {
         let resourceUri = rdf.namedNode(graph.value + '/' + params.id);
         let matchStream = this.store.match(resourceUri, null, null, graph);
         let match = await rdf.dataset().import(matchStream);
+        if (match.length === 0){
+            return {error: 'Not found', error_status:404}
+        }
         let output = serializer.import(match.toStream());
 
         return new Promise((resolve, reject) => {

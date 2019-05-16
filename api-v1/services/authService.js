@@ -91,7 +91,7 @@ module.exports = class {
         ];
 
         //Add default graph permissions for User
-        let defaultPermissions = ['Create'];
+        let defaultPermissions = ['Create', 'Read'];
 
         //TODO: add default permissions for specific role
 

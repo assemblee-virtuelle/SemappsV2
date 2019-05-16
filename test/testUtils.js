@@ -76,7 +76,7 @@ let tests = {
             "http://virtual-assembly.org/pair#isManagedBy": 
             { "@id": "http://data.virtual-assembly.org:9050/ldp/1238755194-7389627001" } },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
-            "http://virtual-assembly.org/pair#isPublic": "0" },
+            "http://virtual-assembly.org/pair#isPublic": "1" },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
             "http://virtual-assembly.org/pair#isProtected": "1" },
           { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
@@ -124,6 +124,8 @@ let tests = {
             { "@id": "http://data.virtual-assembly.org:9050/ldp/1238755194-7389627001" } },
         { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
           "http://virtual-assembly.org/pair#isPublic": "1" },
+          { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
+          "http://virtual-assembly.org/pair#isProtected": "1" },
         { "@id": "http://localhost:3030/TestSemapps/data/Project#6fbfe31553264760403",
           "http://virtual-assembly.org/pair#preferedLabel": "APM" } ],
         resource3: [ {

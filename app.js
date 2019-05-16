@@ -12,10 +12,11 @@ const fs = require('fs');
 const cors = require('cors')
 
 const app = express();
+const PORT = 3000;
 
 //Set Swagger UI
 const options = {
-  swaggerUrl: "http://localhost:3000/v1/api-docs"
+  swaggerUrl: `http://localhost:${PORT}/v1/api-docs`
 }
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 app.use(bodyParser.json());
@@ -68,10 +69,12 @@ app.use(function(err, req, res, next) {
   res.status(err.status).json(err);
 });
 
+app.get('/', function(req, res) {
+  res.redirect('/api-docs');
+})
+
 if (process.env.NODE_ENV !== 'test'){
-  app.listen(3000, () => {
-    console.log("Launched on http://localhost:3000");
-  });
+  app.listen(PORT);
 }
 //Launch app if not in test mode
 

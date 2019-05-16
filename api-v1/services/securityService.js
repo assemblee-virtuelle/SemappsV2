@@ -153,6 +153,10 @@ module.exports = class {
         }
     }
 
+    /**
+     * @description Deletes permissions 
+     * @param {*} req 
+     */
     async delete(req){
         let userId = req.userId;
         let resourceId = req.params.id;
@@ -160,22 +164,29 @@ module.exports = class {
 
         let permArr = this._formatPermissions(req.permList);
 
-        let resourceUri = this.client.graph(req.params.type).value + '/' + resourceId;
-
+        const resourceUri = this.client.graph(req.params.type).value + '/' + resourceId;
+        let deleteDataset = rdf.dataset();
         //Verify uris
         await this._asyncForEach(toDelete, async deletePerm => {
             await this._asyncForEach(permArr, async userPerm => {
                 if (userPerm.id === deletePerm){
                     await this._asyncForEach(userPerm.permissions, async perm => {
                         let permUri = this._permUri(userPerm.id, req.params.type, perm);
-                        await this.store.removeMatches(permUri, ns.sioc('has_scope'), rdf.namedNode(resourceUri), this.pGraph);
+                        deleteDataset.add(rdf.quad(permUri, ns.sioc('has_scope'), rdf.namedNode(resourceUri), this.pGraph))
+                        // await this.store.removeMatches(permUri, ns.sioc('has_scope'), rdf.namedNode(resourceUri), this.pGraph);
                     })
                 }
             })
         })
         return new Promise((resolve, reject) => {
-            //TODO: test timings 
-            resolve();
+            //TODO: test timings
+            if (deleteDataset.length !== 0){
+                let deleteStream = this.store.remove(deleteDataset.toStream())
+                rdf.waitFor(deleteStream).then(() => resolve());
+            }
+            else {
+                resolve();
+            }
         })
     }
 

@@ -35,7 +35,6 @@ module.exports = async function checkPermissionAccess(req, res, next){
             permissionsArr.push(quad.subject.value);
         })
         req.permList = permissionsArr;
-        // console.log('permissionArr', permissionsArr)
     }
     next();
 

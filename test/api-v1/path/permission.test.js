@@ -42,7 +42,7 @@ describe('Permissions API', () => {
             },
             {
                 id:users[0].id,
-                permissions:['Read', 'Control']
+                permissions:['Control']
             },
             {
                 id:users[1].id,
@@ -56,7 +56,17 @@ describe('Permissions API', () => {
         .expect(200)
         .end((err, res) => {
             if (err) {return done(err);}
-            done();
+            else{
+                app.get(`/v1/resource/${type}/${resourceId}`)
+                .set('Authorization', `Bearer ${users[0].id}`)
+                .set('Accept', /application\/json/)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) { return done(err); }
+                    // console.log('res.body :', res.body)
+                    done();
+                })
+            }
         })
     })
 

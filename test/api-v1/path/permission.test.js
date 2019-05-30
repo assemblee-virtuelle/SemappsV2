@@ -12,17 +12,18 @@ describe('Permissions API', () => {
     let resourceId = "";
     let user = {};
     let {type, payload, resource2, resource3} = tests.resource;
+    let projectResource = tests.resources[0];
+    let documentResource = tests.resources[1];
 
     before(done => {
         users = tests.users;
-        resourceId = tests.resource.id;
         user = tests.user;
         id = user.id;
         done();
     })
 
     it('Has control over resource', (done) => {
-        app.get(`/v1/perm/${type}/${resourceId}`)
+        app.get(`/v1/perm/${projectResource.type}/${projectResource.id}`)
         .set('Authorization', `Bearer ${id}`)
         .set('Accept', /application\/json/)
         .expect(200)
@@ -49,7 +50,7 @@ describe('Permissions API', () => {
                 permissions:['Read', 'Write', 'Control', 'Edit', 'Delete']
             }
         ]
-        app.post(`/v1/perm/${type}/${resourceId}`)
+        app.post(`/v1/perm/${projectResource.type}/${projectResource.id}`)
         .set('Authorization', `Bearer ${id}`)
         .set('Accept', /application\/json/)
         .send(newPerms)
@@ -57,13 +58,12 @@ describe('Permissions API', () => {
         .end((err, res) => {
             if (err) {return done(err);}
             else{
-                app.get(`/v1/resource/${type}/${resourceId}`)
+                app.get(`/v1/resource/${projectResource.type}/${projectResource.id}`)
                 .set('Authorization', `Bearer ${users[0].id}`)
                 .set('Accept', /application\/json/)
                 .expect(200)
                 .end((err, res) => {
                     if (err) { return done(err); }
-                    // console.log('res.body :', res.body)
                     done();
                 })
             }
@@ -80,24 +80,44 @@ describe('Permissions API', () => {
                 permissions:['Write', 'Read']
             }
         ]
-        app.put(`/v1/perm/${type}/${resourceId}`)
+        app.put(`/v1/perm/${projectResource.type}/${projectResource.id}`)
         .set('Authorization', `Bearer ${id}`)
         .send(perms)
         .expect(200)
         .end((err,res) => {
             if (err) {return done(err)}
-            done();
+            else {
+                app.get(`/v1/resource/${projectResource.type}/${projectResource.id}`)
+                .set('Authorization', `Bearer ${users[0].id}`)
+                .set('Accept', /application\/json/)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) { return done(err); }
+                    // console.log('res.body :', res.body)
+                    done();
+                })
+            }
         })
     })
 
     it('Deletes permissions of a resource', done => {
         let perms = [users[0].id, users[2].id]
-        app.delete(`/v1/perm/${type}/${resourceId}`)
+        app.delete(`/v1/perm/${projectResource.type}/${projectResource.id}`)
         .set('Authorization', `Bearer ${id}`)
         .send(perms)
         .expect(200)
         .end((err, res) => {
             if (err) {return done(err)}
+            else {
+                app.get(`/v1/resource/${projectResource.type}/${projectResource.id}`)
+                .set('Authorization', `Bearer ${users[0].id}`)
+                .set('Accept', /application\/json/)
+                .expect(403)
+                .end((err, res) => {
+                    if (err) { return done(err); }
+                    done();
+                })
+            }
             done();
         })
     })

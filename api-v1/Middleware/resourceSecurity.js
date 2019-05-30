@@ -29,10 +29,13 @@ module.exports = async function checkResourceAccess(req, res, next){
 
             if (await _isResourcePublic(resourceUri, client.graph(type))){
                 allowed = true;
+                log('Resource is public, allow for everyone');
             }
             else if (await _isResourcePrivateForUser(resourceUri, req.userId, client.graph(type))){
                 allowed = await _checkUserPermissions(req, permissions, resourceUri)
+                log('Resource is private, check for user Access');
             } else{
+                log('Logged users with default access can read it');
                 //If resource is not private nor public, check for user permissions
                 allowed = await _checkUserPermissions(req, permissions, resourceUri);
                 //If user is not allowed, check for Graph wide permissions eg: user permissions of http://localhost:3030/TestSemapps/data/Document/

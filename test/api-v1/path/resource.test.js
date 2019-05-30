@@ -10,6 +10,8 @@ describe('Resource API', () => {
     let resourceId = "";
     let user = {};
     let {type, payload, resource2, resource3} = tests.resource;
+    let projectResource = tests.resources[0];
+    let documentResource = tests.resources[1];
 
 
     before(done => {
@@ -19,28 +21,28 @@ describe('Resource API', () => {
     })
 
     it('Creates (2) a new resource', done => {
-
-        app.post(`/v1/resource/${type}`)
+        app.post(`/v1/resource/${projectResource.type}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
-        .send(payload)
+        .send(projectResource.payload)
         .expect(200)
         .end((err, res) => {
             if (err) { return done(err); }
             resourceUri = res.body.uri;
             resourceId = res.body.id;
-            tests.resource.id = res.body.id;
+            tests.resources[0].id = res.body.id;
         })
 
-        app.post(`/v1/resource/${type}`)
+        app.post(`/v1/resource/${documentResource.type}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
-        .send(payload)
+        .send(documentResource.payload)
         .expect(200)
         .end((err, res) => {
             if (err) { return done(err); }
             resourceUri = res.body.uri;
             resourceId = res.body.id;
+            tests.resources[1].id = res.body.id; 
             done();
         })
 
@@ -49,7 +51,7 @@ describe('Resource API', () => {
     it('Show a list of resources', done => {
         //ResourceUri = http://127.0.0.1:3001/v1/resource/{type}/{id}
         app
-        .get(`/v1/resource/${type}`)
+        .get(`/v1/resource/${projectResource.type}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
         .expect(200)
@@ -64,7 +66,7 @@ describe('Resource API', () => {
     it('Show a resource', done => {
         //ResourceUri = http://127.0.0.1:3001/v1/resource/{type}/{id}
         app
-        .get(`/v1/resource/${type}/${resourceId}`)
+        .get(`/v1/resource/${projectResource.type}/${projectResource.id}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
         .expect(200)
@@ -78,10 +80,10 @@ describe('Resource API', () => {
 
     it('Edit a resource', done => {
         app
-        .put(`/v1/resource/${type}/${resourceId}`)
+        .put(`/v1/resource/${projectResource.type}/${projectResource.id}`)
         .set('Accept', /application\/json/)
         .set('Authorization', `Bearer ${id}`)
-        .send(resource2)
+        .send(projectResource.modified)
         .expect(200)
         .expect('Content-Type', /application\/json/)
         .end((err, res) => {

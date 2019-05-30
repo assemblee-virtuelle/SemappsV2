@@ -1,6 +1,9 @@
 const checkResourceAccess = require('../Middleware/resourceSecurity');
 
-
+/**
+ * Endpoint to create a new userInfo 
+ * User information quads are stored on a different graph from user security quads 
+ */
 module.exports = function(resourceService){
 
     let operations = {

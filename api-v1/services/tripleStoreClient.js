@@ -4,6 +4,9 @@ const SparqlStore = require('rdf-store-sparql');
 const formats = require('@rdfjs/formats-common');
 const fetchLite = require('@rdfjs/fetch-lite');
 
+/**
+ * Creates the link into Jena triple store
+ */
 module.exports = class {
     constructor(args){
 
@@ -40,6 +43,10 @@ module.exports = class {
         this.store = new SparqlStore(sparqlUrl, options);
         this.store.client.fetch = (url, options) => fetchLite(url, { formats, ...options });
 
+        /**
+         * Test connection into jena
+         * TODO: check connexion and if 403, reauthenticate
+         */
         fetch(uri + '/$/server').then(res => {
             //TODO: check WWW authenticate
             if(res.status == 401){
@@ -54,14 +61,27 @@ module.exports = class {
         .catch(err => console.log(err))
     }
 
+    /**
+     * @description Returns the graph URI
+     * @returns {string} uri
+     * @param {*} graph 
+     */
     graph(graph){
         return rdf.namedNode(this.graphEndpoint + '/' + graph);
     }
 
+    /**
+     * @description Returns the security graph URI
+     * @returns {string} uri
+     */
     securityGraph(){
         return rdf.namedNode(this.graphEndpoint + '/' + this.userSecurity);
     }
 
+    /**
+     * @description Returns the permissions graph URI
+     * @returns {string} uri
+     */
     permissionGraph(){
         return rdf.namedNode(this.graphEndpoint + '/' + this.userPermission);
     }

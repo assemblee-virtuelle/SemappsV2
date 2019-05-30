@@ -1,5 +1,8 @@
 const checkResourceAccess = require('../../../Middleware/resourceSecurity');
 
+/**
+ * Api for single resource Read , Update, Delete
+ */
 module.exports = function(resourceService) {
 
     let operations = {

@@ -1,3 +1,6 @@
+/**
+ * Sparql endpoint for select
+ */
 module.exports = function(sparqlService){
 
     let operations = {

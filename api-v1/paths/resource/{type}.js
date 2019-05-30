@@ -1,5 +1,8 @@
 const checkResourceAccess = require('../../Middleware/resourceSecurity');
 
+/**
+ * API for Resource creation and 
+ */
 module.exports = function(resourceService) {
 
     let operations = {

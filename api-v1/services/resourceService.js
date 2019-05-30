@@ -8,6 +8,9 @@ const jsonLDToDataset = require('../utils/jsontodataset');
 
 const serializer = new Serializer();
 
+/**
+ * Service for ressources, used by /resource API
+ */
 module.exports = class {
     constructor(client){
         // //Initialize sparql client
@@ -21,6 +24,14 @@ module.exports = class {
         this.defaultPermissions = ['Create', 'Read', 'Delete', 'Edit', 'Control'];
     }
 
+    /** TODO: use configuration quads and not hardcoded ones
+     * @description Method used to add custom quads which aren't into the ressource payload
+     * @param {*} method 
+     * @param {*} userId 
+     * @param {*} resourceId 
+     * @param {*} type 
+     * @param {*} options 
+     */
     customQuads(method, userId, resourceId, type, options = {}){
         let resourceUri = this.client.graph(type).value + '/' + resourceId;
         let quads = [];
@@ -50,6 +61,10 @@ module.exports = class {
         return quads;
     }
 
+    /**
+     * Creates a ressource
+     * @param {*} req 
+     */
     async create(req){
         let {body, params} = req;
         let resource = body;
@@ -87,6 +102,10 @@ module.exports = class {
         });
     }
 
+    /**
+     * Edit a ressource
+     * @param {*} req 
+     */
     async edit(req){
         let {body, params} = req;
         let id = params.id;
@@ -124,6 +143,10 @@ module.exports = class {
 
     }
 
+    /**
+     * Deletes a ressource
+     * @param {*} req 
+     */
     async delete(req){
         let {params} = req;
         let id = params.id;
@@ -145,6 +168,10 @@ module.exports = class {
         }
     }
 
+    /** //TODO: move this into a Type API
+     * @description Get all ressources of a Type (all documents, projects etc)
+     * @param {*} req 
+     */
     async getByType(req){
         let type = req.params.type;
         let graph = this.client.graph(type);
@@ -176,6 +203,10 @@ module.exports = class {
         });
     }
 
+    /**
+     * @description Get a single ressource
+     * @param {*} params 
+     */
     async getById(params){
         let graph = this.client.graph(params.type);
         let resourceUri = rdf.namedNode(graph.value + '/' + params.id);

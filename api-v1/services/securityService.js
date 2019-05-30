@@ -3,6 +3,9 @@ const ns = require('../utils/namespaces')
 const log = require('debug')('semapps:security');
 const errlog = require('debug')('semapps:error');
 
+/**
+ * Service in charge of permissions CRUD (/perm API route)
+ */
 module.exports = class {
     constructor(client){
         this.store = client.store;
@@ -13,6 +16,13 @@ module.exports = class {
         this.securityUri = "";
     }
 
+    /**
+     * Creates the default permissions for a ressource, returns quads
+     * @param {*} resourceId 
+     * @param {*} userId 
+     * @param {*} types 
+     * @param {*} permissions 
+     */
     createDefaultPermissions(resourceId, userId, types, permissions){
         let quads = [];
         types.forEach(type => {
@@ -51,6 +61,10 @@ module.exports = class {
         })
     }
 
+    /**
+     * Edit permissions
+     * @param {} req 
+     */
     async edit(req){
         let permissionSet = req.body;
         let type = req.params.type;
@@ -109,6 +123,10 @@ module.exports = class {
         }
     }
 
+    /**
+     * Creates permissions
+     * @param {} req 
+     */
     async create(req){
         let permissionSet = req.body;
         let type = req.params.type;
@@ -224,15 +242,24 @@ module.exports = class {
         return trimmed;
     }
 
+    /**
+     * @description Returns permissions of a resource
+     * @param {*} req 
+     */
     async get(req){
-
         let permissionsArr = this._formatPermissions(req.permList);
-
         return new Promise((resolve, reject) => {
             resolve(permissionsArr);
         })
     }
 
+    /**
+     * Add a new permissions set
+     * @param {*} userId 
+     * @param {*} resourceUri 
+     * @param {*} type 
+     * @param {*} permissions 
+     */
     async addPerm(userId, resourceUri, type, permissions){
         //Add permission
         let quads = [];

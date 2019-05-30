@@ -3,6 +3,12 @@ module.exports = function(authService) {
       POST
     };
     
+    /**
+     * @description POST on /auth/new
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     */
     async function POST(req, res, next) {
       let ret = await authService.createUser(req.body);
       if (ret && ret.error){

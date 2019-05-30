@@ -8,6 +8,9 @@ const serializer = new Serializer();
 let store = null;
 let client = null;
 
+/**
+ * @description Check if user has Control right 
+ */
 module.exports = async function checkPermissionAccess(req, res, next){
     let permissions = null;
     let allowed = false;

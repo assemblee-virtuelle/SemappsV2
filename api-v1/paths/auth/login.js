@@ -4,6 +4,12 @@ module.exports = function(authService) {
       POST,
     };
   
+    /**
+     * Equivalent to a POST on /auth/login
+     * @param {*} req 
+     * @param {*} res 
+     * @param {*} next 
+     */
     async function POST(req, res, next) {
       let {email, password} = req.body;
       let ret = await authService.login(email, password);

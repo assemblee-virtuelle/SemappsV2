@@ -1,3 +1,6 @@
+/**
+ * Sparql endpoint for update
+ */
 module.exports = function(sparqlService){
 
     let operations = {

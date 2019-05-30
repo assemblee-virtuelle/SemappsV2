@@ -13,6 +13,10 @@ module.exports = class {
         this.client = client;
     }
 
+    /**
+     * Makes a direct endpoint into /update from Jena 
+     * @param {*} req 
+     */
     async update(req){
         let sparqlQuery = req.query.query;
 
@@ -27,6 +31,10 @@ module.exports = class {
         }
     }
 
+    /**
+     * Direct endpoint into /select from Jena
+     * @param {} req 
+     */
     async select(req){
         let sparqlQuery = req.query.query;
 

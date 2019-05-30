@@ -5,6 +5,9 @@ const rdf = require('rdf-ext');
 const ns = require('../utils/namespaces.js');
 const saltRounds = 10;
 
+/**
+ * Service in charge of authentification (connected to /auth API route)
+ */
 module.exports = class {
     constructor(client){
       //TODO: get graph name from config
@@ -20,6 +23,11 @@ module.exports = class {
 
     }
 
+    /**
+     * Login into the app
+     * @param {*} email 
+     * @param {*} password 
+     */
     async login(email, password){
       if (email && password){
         let matchStream = this.store.match(null, ns.sioc('email'), rdf.literal(email), this.sGraph);
@@ -49,7 +57,11 @@ module.exports = class {
       }
     }
 
-      
+
+    /**
+     * Creates a new user from an email, password and username
+     * @param {*} userInfo 
+     */
   async createUser(userInfo){
 
     //VERIFY USER INFO

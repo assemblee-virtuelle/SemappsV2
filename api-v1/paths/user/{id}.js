@@ -1,6 +1,9 @@
 const checkResourceAccess = require('../../Middleware/resourceSecurity');
 
-
+/**
+ * Api for user edition (uses the resourceService)
+ * TODO: delete ?
+ */
 module.exports = function(resourceService) {
 
   let operations = {

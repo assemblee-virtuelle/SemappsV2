@@ -5,6 +5,9 @@ const log = require('debug')('semapps:security');
 let store = null;
 let client = null;
 
+/**
+ * @description Middleware checking the ressource Access, used in /resource API and /user
+ */
 module.exports = async function checkResourceAccess(req, res, next){
     let permissions = null;
     let allowed = false;
@@ -63,6 +66,13 @@ module.exports = async function checkResourceAccess(req, res, next){
     next();
 }
 
+/**
+ * @description Check user Permissions
+ * @returns {boolean} permission
+ * @param {*} req 
+ * @param {*} permissions 
+ * @param {*} resourceUri 
+ */
 async function _checkUserPermissions(req, permissions, resourceUri){
 
     const type = req.params.type;
@@ -80,7 +90,7 @@ async function _checkUserPermissions(req, permissions, resourceUri){
         break;
 
         case 'PUT':
-        // if(req.params.id) will disappear when graph API is implemented
+        //Note: if(req.params.id) will disappear when graph API is implemented
         //Check edit permissions
         if (req.params.id){
             userPermUri += '/Edit';
@@ -158,12 +168,6 @@ async function _isResourcePrivateForUser(resourceUri, userId, graph){
     if(protectedGraph.length != 0){
         log("Is protected !");
         //TODO: Change this into organization permissions (UserGroups)
-        // if (isCreator.length != 0){
-        //     return false;
-        // }
-        // else {
-        //     return true;
-        // }
         return true;
     }
     return false;

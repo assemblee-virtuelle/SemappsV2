@@ -1,5 +1,8 @@
 const permSecurity = require('../../../Middleware/permissionSecurity');
 
+/**
+ * CRUD for permissions on a specific resource
+ */
 module.exports = function(securityService) {
 
     let operations = {
